@@ -109,11 +109,6 @@ textarea{width:100%;min-height:150px;margin-top:12px;padding:12px;border-radius:
 .titel{display:flex;justify-content:space-between;align-items:flex-end;margin:10px 0 16px}
 .titel h1{margin:0}
 .fab{width:56px;height:56px;border-radius:50%;background:var(--pr);color:var(--on);display:grid;place-items:center}
-.chips{display:flex;gap:8px;overflow-x:auto;margin:0 -20px 16px;padding:0 20px}
-.chip{display:flex;align-items:center;gap:6px;height:44px;padding:0 16px;border-radius:22px;border:1px solid var(--ln);background:var(--s1);font-weight:700;white-space:nowrap;color:var(--mu)}
-.chip.on{background:var(--pr);border-color:transparent;color:var(--on)}
-.chip em{font-style:normal;font-size:11px;padding:2px 7px;border-radius:8px;background:var(--s2)}
-.chip svg.i{width:16px}
 .rez{display:flex;align-items:center;gap:4px;background:var(--s1);border:1px solid var(--ln);border-radius:20px;padding:10px 6px 10px 10px;margin-bottom:12px}
 .rez .main{flex:1;min-width:0;display:flex;gap:14px;align-items:center;text-align:left}
 .rez img{width:76px;height:76px;border-radius:14px;object-fit:cover;flex:none}
@@ -335,9 +330,7 @@ function patchRechner(){const e=S.entwurf;document.querySelectorAll('#app input[
 function dirtyDot(){const d=$('#dirty');if(d)d.hidden=!geaendert()}
 
 function vRezepte(){const n=S.rezepte.length;
- const chip=(t,i)=>'<span class="chip">'+(i?ic(i)+t+'<em>Bald</em>':t)+'</span>';
  return kopf()+'<div class="titel"><div><h1>Rezepte</h1><small>'+n+(n===1?' Teigführung':' Teigführungen')+' gesichert</small></div><button class="fab" data-act="neu" aria-label="Neues Rezept">'+ic('plus')+'</button></div>'
- +'<div class="chips"><span class="chip on">Pizza</span>'+chip('Grillen','lock')+'<a class="chip" href="#kochen">Kochen</a>'+'</div>'
  +S.rezepte.map(r=>'<article class="rez"><button class="main" data-act="oeffne" data-id="'+esc(r.id)+'"><img src="img/pizza.jpg" alt=""><span>'+hydr(r)+'<b>'+esc(r.name)+'</b><small>'+meta(r)+' · '+nfm(1).format(kuehl(r))+' h Kühlschrank</small></span></button><button class="icbtn s" data-act="menue" data-id="'+esc(r.id)+'" aria-label="Aktionen für '+esc(r.name)+'">'+ic('more')+'</button></article>').join('')
  +'<section class="card sich"><h2>'+ic('shield')+' Sicherung</h2><p>Deine Rezepte liegen nur auf diesem iPhone.</p><button data-act="export">'+ic('up')+'Sicherung exportieren</button><button data-act="import">'+ic('down')+'Sicherung einlesen</button></section>'}
 
@@ -409,7 +402,7 @@ const ansicht=()=>{const h=location.hash.slice(1);return ROUTEN[h]?h:'start'};
 function render(){const v=ansicht();document.documentElement.dataset.theme=S.theme;
  document.querySelector('meta[name=theme-color]').content=S.theme==='dark'?'#151210':'#FAF5EE';
  $('#app').innerHTML=ROUTEN[v]();
- $('nav.tabs').innerHTML=(['start','rechner','rezepte','zeitplan'].includes(v)?NAV:NAV.slice(0,1)).map(n=>'<a href="#'+n[0]+'"'+(n[0]===v?' aria-current="page"':'')+'>'+ic(n[1])+n[2]+'</a>').join('');
+ $('nav.tabs').innerHTML=v==='start'?'':(['rechner','rezepte','zeitplan'].includes(v)?NAV:NAV.slice(0,1)).map(n=>'<a href="#'+n[0]+'"'+(n[0]===v?' aria-current="page"':'')+'>'+ic(n[1])+n[2]+'</a>').join('');
  if(v!==letzte){window.scrollTo(0,0);letzte=v}}
 
 async function wechsle(id){if(id===S.aktiv)return true;if(!await verwerfenOk())return false;const r=S.rezepte.find(x=>x.id===id);if(!r)return false;S.aktiv=id;S.entwurf=norm(r);ui.hefeEdit=false;ui.schritteEdit=false;sichern();return true}
