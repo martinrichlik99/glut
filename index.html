@@ -409,7 +409,7 @@ const ansicht=()=>{const h=location.hash.slice(1);return ROUTEN[h]?h:'start'};
 function render(){const v=ansicht();document.documentElement.dataset.theme=S.theme;
  document.querySelector('meta[name=theme-color]').content=S.theme==='dark'?'#151210':'#FAF5EE';
  $('#app').innerHTML=ROUTEN[v]();
- $('nav.tabs').innerHTML=NAV.map(n=>'<a href="#'+n[0]+'"'+(n[0]===v?' aria-current="page"':'')+'>'+ic(n[1])+n[2]+'</a>').join('');
+ $('nav.tabs').innerHTML=(['start','rechner','rezepte','zeitplan'].includes(v)?NAV:NAV.slice(0,1)).map(n=>'<a href="#'+n[0]+'"'+(n[0]===v?' aria-current="page"':'')+'>'+ic(n[1])+n[2]+'</a>').join('');
  if(v!==letzte){window.scrollTo(0,0);letzte=v}}
 
 async function wechsle(id){if(id===S.aktiv)return true;if(!await verwerfenOk())return false;const r=S.rezepte.find(x=>x.id===id);if(!r)return false;S.aktiv=id;S.entwurf=norm(r);ui.hefeEdit=false;ui.schritteEdit=false;sichern();return true}
