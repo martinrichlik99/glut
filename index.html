@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="de" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#151210">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="GLUT">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<title>GLUT</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+@font-face{font-family:"Public Sans";src:url(fonts/publicsans.woff2) format("woff2");font-weight:700 900;font-display:swap}
+@font-face{font-family:"DM Sans";src:url(fonts/dmsans.woff2) format("woff2");font-weight:400 700;font-display:swap}
+:root{--hd:"Public Sans",system-ui,sans-serif;--bd:"DM Sans",system-ui,sans-serif}
+:root[data-theme=dark]{color-scheme:dark;--ln2:rgba(255,255,255,.2);--bg:#151210;--s1:#1E1A17;--s2:#2A2522;--ln:rgba(255,255,255,.09);--tx:#F3EDE6;--mu:#A89E94;--pr:#E8501E;--on:#1A110D;--pt:#F4693C;--pill:rgba(232,80,30,.18);--wasser:#4FB3E8;--hefe:#E8A13A;--salz:#F3EDE6;--mehl:#E8501E}
+:root[data-theme=light]{color-scheme:light;--ln2:rgba(42,35,32,.25);--bg:#FAF5EE;--s1:#FFFFFF;--s2:#F1E9DD;--ln:rgba(42,35,32,.13);--tx:#2A2320;--mu:#6B5F55;--pr:#C93D14;--on:#FFFFFF;--pt:#C93D14;--pill:rgba(201,61,20,.11);--wasser:#2B8FC7;--hefe:#C8841A;--salz:#8A7D72;--mehl:#C93D14}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--tx);font:400 16px/1.45 var(--bd);-webkit-text-size-adjust:100%}
+#app{max-width:480px;margin:0 auto;padding:0 20px calc(120px + env(safe-area-inset-bottom))}
+h1,h2,h3,b,strong{font-family:var(--hd)}
+h1{font:800 34px/1.1 var(--hd);margin:6px 0 10px}
+h1 em{font-style:normal;color:var(--pt)}
+a{color:inherit;text-decoration:none}
+button,select,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+:focus-visible{outline:2px solid var(--pt);outline-offset:2px}
+small{color:var(--mu);font-size:13px}
+.top{display:flex;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top) + 14px) 0 10px;min-height:64px}
+.logo{display:flex;align-items:center;gap:8px;font:900 24px var(--hd);letter-spacing:.06em;color:var(--pt)}
+.logo svg{width:26px;height:26px}
+.icbtn{position:relative;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--s1);border:1px solid var(--ln)}
+.icbtn.s{width:40px;height:40px;background:none;border:0}
+.dot{position:absolute;top:8px;right:8px;width:10px;height:10px;border-radius:50%;background:var(--pr);border:2px solid var(--bg)}
+.dot[hidden]{display:none}
+svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.gruss{display:flex;align-items:center;gap:8px;margin:14px 0 0;font:600 13px var(--bd);letter-spacing:.08em;text-transform:uppercase;color:var(--mu)}
+.gruss i{width:8px;height:8px;border-radius:50%;background:var(--pr)}
+.lead{color:var(--mu);margin:0 0 26px}
+.sec{font:800 20px var(--hd);margin:0 0 14px}
+.rowhead{display:flex;justify-content:space-between;align-items:baseline;margin-top:28px}
+.link{color:var(--pt);font-weight:600}
+.kat{display:block;position:relative;height:190px;border-radius:22px;overflow:hidden;margin-bottom:14px;color:#fff;isolation:isolate;border:1px solid var(--ln)}
+.kat::before{content:"";position:absolute;inset:0;background:var(--bild) center/cover;z-index:-2}
+.kat::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.05) 25%,rgba(12,8,6,.86));z-index:-1}
+.kat.off::before{filter:grayscale(.6) brightness(.6)}
+.kat b{position:absolute;left:18px;bottom:40px;font:800 28px var(--hd)}
+.kat small{position:absolute;left:18px;bottom:16px;color:#E9E1D9}
+.kat .tag{position:absolute;top:14px;right:14px;display:flex;align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:16px;font:700 13px var(--bd)}
+.kat.on .tag{background:var(--pr);color:var(--on)}
+.kat.off .tag{background:rgba(0,0,0,.55);color:#EEE}
+.tag svg.i{width:15px;height:15px}
+.hs{display:flex;gap:12px;overflow-x:auto;margin:0 -20px;padding:2px 20px 8px;scroll-snap-type:x proximity}
+.mini{flex:0 0 240px;scroll-snap-align:start;text-align:left;background:var(--s1);border:1px solid var(--ln);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.mini b{font-size:17px}
+.mini .m{display:flex;justify-content:space-between;color:var(--mu);font-size:13px;border-top:1px solid var(--ln);padding-top:10px}
+.mini .m span:last-child{color:var(--pt);font-weight:700}
+.pill{align-self:flex-start;display:inline-block;padding:3px 9px;border-radius:8px;background:var(--pill);color:var(--pt);font:700 12px var(--bd)}
+nav.tabs{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 12px);width:min(440px,calc(100% - 24px));display:flex;gap:4px;padding:6px;border-radius:30px;background:var(--s1);border:1px solid var(--ln);box-shadow:0 8px 30px rgba(0,0,0,.35);z-index:5}
+nav.tabs a{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px;border-radius:24px;font-size:12px;font-weight:600;color:var(--mu)}
+nav.tabs a[aria-current=page]{background:var(--pill);color:var(--pt)}
+.rtop{display:grid;grid-template-columns:44px 1fr 44px;gap:8px}
+.rtop h1{font:800 18px var(--hd);margin:0;text-align:center}
+.recbar{display:flex;gap:10px;align-items:center;margin:6px 0 16px}
+.recsel{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--s1);border:1px solid var(--ln);border-radius:16px;padding:8px 12px}
+.recsel small{font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:700}
+.recsel select{appearance:none;background:none;border:0;font:800 17px var(--hd);width:100%;padding:0;text-overflow:ellipsis}
+.recsel option{color:#000}
+.btn3{display:flex;align-items:center;gap:6px;height:48px;padding:0 14px;border-radius:14px;background:var(--s1);border:1px solid var(--ln);font-weight:600;font-size:14px;white-space:nowrap}
+.btn3 svg.i{width:18px}
+.card{background:var(--s1);border:1px solid var(--ln);border-radius:22px;padding:16px;margin-bottom:16px}
+.card h2{font:800 18px var(--hd);margin:0 0 12px;display:flex;justify-content:space-between;align-items:center}
+.row{display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px;padding:12px;background:var(--s2);border-radius:16px;margin-bottom:10px}
+.lab b{display:block;font-size:15px;line-height:1.2}
+.stp{display:flex;align-items:center;gap:6px}
+.rb{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:var(--s1);border:1px solid var(--ln)}
+.rb.p{background:var(--pr);color:var(--on);border-color:transparent}
+.val{display:flex;flex-direction:column;align-items:center;width:78px}
+.val input{width:100%;text-align:center;background:none;border:0;padding:0;font:800 26px/1.1 var(--hd)}
+.val small{font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-weight:700}
+.seg{display:flex;gap:4px;padding:4px;border-radius:16px;background:var(--s2);margin:16px 0 12px}
+.seg button{flex:1;height:46px;border-radius:12px;font-weight:700}
+.seg button.on{background:var(--pr);color:var(--on)}
+.hefe{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;border-radius:16px;border:1px solid var(--pr);background:var(--pill)}
+.hefe b{font-size:16px}.hefe b span{color:var(--pt);margin-left:6px}
+.hefe small{display:block}
+.hefe input{width:90px;height:44px;border-radius:12px;border:1px solid var(--ln);background:var(--s1);padding:0 10px;font:700 18px var(--hd);text-align:center}
+.ges{padding:4px 10px;border-radius:10px;border:1px solid var(--pr);color:var(--pt);font:700 13px var(--bd)}
+.zut{display:grid;grid-template-columns:14px 1fr auto;gap:12px;align-items:center;padding:12px 4px;border-bottom:1px solid var(--ln)}
+.zut:last-child{border-bottom:0}
+.zut .d{width:10px;height:10px;border-radius:50%}
+.zut b{font-size:16px;display:block}
+.zut .gr{font-size:14px;color:var(--mu)}
+.zut .gr strong{font-size:24px;color:var(--tx)}
+.acc{display:flex;align-items:center;gap:10px;width:100%;text-align:left;font:800 18px var(--hd)}
+.acc .cnt{margin-left:auto;color:var(--mu);font:600 13px var(--bd);white-space:nowrap}
+.schr{margin:12px 0 0;padding:0;list-style:none;counter-reset:s}
+.schr li{counter-increment:s;display:grid;grid-template-columns:28px 1fr;gap:10px;padding:10px 12px;margin-bottom:8px;background:var(--s2);border-radius:14px;font-size:15px}
+.schr li::before{content:counter(s);display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--pill);color:var(--pt);font:800 13px var(--hd)}
+.schr-leer{color:var(--mu);margin:12px 0 4px}
+textarea{width:100%;min-height:150px;margin-top:12px;padding:12px;border-radius:14px;border:1px solid var(--ln);background:var(--s2);resize:vertical;line-height:1.45}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:56px;border-radius:18px;background:var(--pr);color:var(--on);font:800 17px var(--hd)}
+.btn2{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:52px;margin-top:10px;border-radius:18px;border:1px solid var(--ln);background:var(--s1);font:700 16px var(--hd)}
+.titel{display:flex;justify-content:space-between;align-items:flex-end;margin:10px 0 16px}
+.titel h1{margin:0}
+.fab{width:56px;height:56px;border-radius:50%;background:var(--pr);color:var(--on);display:grid;place-items:center}
+.chips{display:flex;gap:8px;overflow-x:auto;margin:0 -20px 16px;padding:0 20px}
+.chip{display:flex;align-items:center;gap:6px;height:44px;padding:0 16px;border-radius:22px;border:1px solid var(--ln);background:var(--s1);font-weight:700;white-space:nowrap;color:var(--mu)}
+.chip.on{background:var(--pr);border-color:transparent;color:var(--on)}
+.chip em{font-style:normal;font-size:11px;padding:2px 7px;border-radius:8px;background:var(--s2)}
+.chip svg.i{width:16px}
+.rez{display:flex;align-items:center;gap:4px;background:var(--s1);border:1px solid var(--ln);border-radius:20px;padding:10px 6px 10px 10px;margin-bottom:12px}
+.rez .main{flex:1;min-width:0;display:flex;gap:14px;align-items:center;text-align:left}
+.rez img{width:76px;height:76px;border-radius:14px;object-fit:cover;flex:none}
+.rez .main>span{display:flex;flex-direction:column;gap:3px;min-width:0}
+.rez b{font-size:18px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sich{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sich p{grid-column:1/-1;margin:0;color:var(--mu)}
+.sich h2{grid-column:1/-1;margin:0;justify-content:flex-start;gap:8px}
+.sich button{display:flex;align-items:center;justify-content:center;gap:8px;min-height:50px;padding:6px 10px;border-radius:14px;background:var(--s2);font-weight:600;text-align:center;font-size:14px}
+.sich svg.i{width:18px;flex:none}
+.zrow{display:flex;align-items:center;gap:12px;padding:10px 4px}
+.zrow+.zrow{border-top:1px solid var(--ln)}
+.zrow .ico{width:44px;height:44px;border-radius:12px;background:var(--pill);color:var(--pt);display:grid;place-items:center;flex:none}
+.zrow select,.zrow input{width:100%;min-width:0;background:none;border:0;font:800 17px var(--hd);padding:0;appearance:none;text-overflow:ellipsis}
+.zrow small{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:700}
+.zrow option{color:#000}
+.tl{list-style:none;margin:20px 0 14px;padding:0}
+.st{display:grid;grid-template-columns:84px 24px 1fr;gap:6px;margin-bottom:14px}
+.st .t{align-self:start;text-align:center;padding:6px 4px;border-radius:12px;background:var(--s1);border:1px solid var(--ln);font:800 14px/1.2 var(--hd);white-space:nowrap}
+.st .t small{display:block;font-weight:600;font-size:11px}
+.st .l{position:relative}
+.st .l::before{content:"";position:absolute;left:11px;top:-16px;bottom:-16px;width:2px;background:var(--ln2)}
+.st:first-child .l::before{top:16px}
+.st:last-child .l::before{bottom:auto;height:16px}
+.st .l::after{content:"";position:absolute;left:5px;top:10px;width:14px;height:14px;border-radius:50%;background:var(--bg);border:2px solid var(--pr)}
+.st .c{background:var(--s1);border:1px solid var(--ln);border-radius:16px;padding:12px 14px}
+.st .c b{display:block;font-size:17px}
+.st .c small{display:block;margin-top:2px;font-size:13px}
+.st.end .t{background:var(--pr);color:var(--on);border-color:transparent}
+.st.end .l::after{background:var(--pr)}
+.st.end .c{border-color:var(--pr)}
+.kb{display:grid;grid-template-columns:84px 24px 1fr;margin:-6px 0 8px}
+.kb span{grid-column:3;justify-self:start;display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:16px;border:1px solid var(--wasser);color:var(--wasser);font:700 13px var(--bd)}
+.kb svg.i{width:15px}
+.kb::before{content:"";grid-column:2;width:2px;height:100%;margin-left:11px;background:var(--wasser)}
+.hinweis{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:14px;background:var(--s1);border:1px solid var(--ln);color:var(--mu);font-size:14px}
+.warn{color:var(--pt);font-weight:600}
+dialog{border:1px solid var(--ln);border-radius:22px;background:var(--s1);color:var(--tx);padding:20px;width:min(380px,calc(100% - 32px))}
+dialog::backdrop{background:rgba(0,0,0,.6)}
+dialog h2{margin:0 0 6px;font:800 20px var(--hd)}
+dialog p{margin:0 0 12px;color:var(--mu)}
+dialog input[type=text]{width:100%;height:48px;border-radius:12px;border:1px solid var(--ln);background:var(--s2);padding:0 12px;margin-bottom:12px}
+dialog input[hidden]{display:none}
+.dbtn{display:flex;flex-direction:row-reverse;gap:10px}
+.dbtn button{flex:1;height:50px;border-radius:14px;font:800 16px var(--hd);border:1px solid var(--ln);background:var(--s2)}
+.dbtn button[value=ok],.dbtn button.pri{background:var(--pr);color:var(--on);border-color:transparent}
+#mn form{display:flex;flex-direction:column;gap:8px}
+#mn button{height:52px;border-radius:14px;background:var(--s2);font:700 16px var(--hd)}
+#mn button.gef{color:var(--pt)}
+#toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 92px);transform:translate(-50%,20px);opacity:0;transition:.25s;background:var(--tx);color:var(--bg);padding:10px 16px;border-radius:14px;font-weight:600;z-index:9;pointer-events:none;max-width:calc(100% - 40px)}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+@media (prefers-reduced-motion:reduce){#toast{transition:none}}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<nav class="tabs" aria-label="Hauptmenü"></nav>
+<dialog id="dlg"><form method="dialog"><h2 id="dT"></h2><p id="dP"></p><input id="dI" type="text" maxlength="60" autocomplete="off" aria-label="Name"><div class="dbtn"><button value="ok" id="dOk">OK</button><button value="">Abbrechen</button></div></form></dialog>
+<dialog id="mn"><form method="dialog"><h2 id="mT"></h2><button value="kopie">Kopie erstellen</button><button value="loeschen" class="gef">Löschen</button><button value="">Abbrechen</button></form></dialog>
+<input type="file" id="imp" accept=".json,application/json" hidden>
+<div id="toast" role="status" aria-live="polite"></div>
+<script>
+(function(){
+'use strict';
+// <rechnen>
+const RAUM_H=1,KNET_MIN=30,HEFE_REF=0.25,HEFE_REF_H=46;
+function hefeAuto(stunden,art){const f=HEFE_REF*HEFE_REF_H/Math.max(stunden,1);return art==='trocken'?f/3:f}
+function rechnen(r){const hp=r.hefeManuell!=null?r.hefeManuell:hefeAuto(r.stunden,r.hefeart);const gesamt=r.pizzen*r.gewicht;const mehl=gesamt/(1+(r.hydration+r.salz+hp)/100);return{hp,gesamt,mehl,wasser:mehl*r.hydration/100,salz:mehl*r.salz/100,hefe:mehl*hp/100}}
+function zeitplan(r,backMs){const h=3600e3;const raus=backMs-RAUM_H*h;const formen=raus-r.stunden*h;return{kneten:formen-KNET_MIN*60e3,formen,raus,backen:backMs}}
+// </rechnen>
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const nfm=n=>new Intl.NumberFormat('de-DE',{maximumFractionDigits:n,minimumFractionDigits:0});
+const nff=n=>new Intl.NumberFormat('de-DE',{maximumFractionDigits:n,minimumFractionDigits:n});
+const p2=n=>String(n).padStart(2,'0');
+const WT=['So','Mo','Di','Mi','Do','Fr','Sa'];
+function lokalDT(d){return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())+'T'+p2(d.getHours())+':'+p2(d.getMinutes())}
+function standardBackzeit(){const d=new Date();d.setHours(19,0,0,0);while(d.getDay()!==6||d<new Date())d.setDate(d.getDate()+1);return lokalDT(d)}
+const neueId=()=>'r'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+
+const P={flame:'<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
+back:'<path d="M19 12H5M12 19l-7-7 7-7"/>',plus:'<path d="M12 5v14M5 12h14"/>',minus:'<path d="M5 12h14"/>',
+chev:'<path d="M6 9l6 6 6-6"/>',pencil:'<path d="M17 3a2.8 2.8 0 0 1 4 4L7.5 20.5 2 22l1.5-5.5z"/>',
+moon:'<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>',
+sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+mark:'<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>',
+copy:'<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
+clock:'<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+book:'<path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2zM22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/>',
+lock:'<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+more:'<circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/>',
+up:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>',
+down:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>',
+slice:'<path d="M12 21 3.5 6.5a17 17 0 0 1 17 0z"/><circle cx="12" cy="9.5" r="1"/><circle cx="9" cy="7" r=".6"/>',
+snow:'<path d="M2 12h20M12 2v20M20 16l-4-4 4-4M4 8l4 4-4 4M16 4l-4 4-4-4M8 20l4-4 4 4"/>',
+shield:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+arrow:'<path d="M5 12h14M12 5l7 7-7 7"/>',info:'<circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>'};
+const ic=n=>'<svg class="i" viewBox="0 0 24 24" aria-hidden="true">'+P[n]+'</svg>';
+
+const GRUND={id:'grundrezept',name:'Grundrezept',pizzen:6,gewicht:292,hydration:68,salz:3,stunden:46,hefeart:'frisch',hefeManuell:null,schritte:'',geaendertAm:0};
+const SP={pizzen:[1,1,99,0],gewicht:[1,50,600,1],hydration:[1,40,100,1],salz:[0.1,0,6,1],stunden:[1,1,120,1]};
+const FELDER=['pizzen','gewicht','hydration','salz','stunden','hefeart','hefeManuell','schritte'];
+function zahl(v,def,min,max){v=Number(v);return isFinite(v)?Math.min(max,Math.max(min,v)):def}
+function norm(r){r=r||{};return{id:/^[\w-]{1,40}$/.test(r.id)?r.id:neueId(),name:String(r.name||'Rezept').slice(0,60),pizzen:Math.round(zahl(r.pizzen,6,1,99)),gewicht:zahl(r.gewicht,292,50,600),hydration:zahl(r.hydration,68,40,100),salz:zahl(r.salz,3,0,6),stunden:zahl(r.stunden,46,1,120),hefeart:r.hefeart==='trocken'?'trocken':'frisch',hefeManuell:r.hefeManuell==null?null:zahl(r.hefeManuell,0.25,0,5),schritte:String(r.schritte||'').slice(0,4000),geaendertAm:Number(r.geaendertAm)||0}}
+
+const KEY='glut.v1';
+let S,ui={hefeEdit:false,schritteAuf:true,schritteEdit:false,menuId:null},letzte='';
+function laden(){let d=null;try{d=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+ d=d&&typeof d==='object'?d:{};
+ const rez=(Array.isArray(d.rezepte)&&d.rezepte.length?d.rezepte:[GRUND]).map(norm);
+ const aktiv=rez.some(r=>r.id===d.aktiv)?d.aktiv:rez[0].id;
+ const basis=d.entwurf&&d.entwurf.id===aktiv?d.entwurf:rez.find(r=>r.id===aktiv);
+ return{rezepte:rez,aktiv,entwurf:norm(Object.assign({},basis,{id:aktiv,name:rez.find(r=>r.id===aktiv).name})),theme:d.theme==='light'?'light':'dark',backzeit:/^\d{4}-\d\d-\d\dT\d\d:\d\d$/.test(d.backzeit)?d.backzeit:standardBackzeit()}}
+function sichern(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('Speichern fehlgeschlagen ('+((e&&e.name)||'Fehler')+')')}}
+const aktivRez=()=>S.rezepte.find(r=>r.id===S.aktiv);
+const geaendert=()=>{const a=aktivRez();return !a||FELDER.some(k=>a[k]!==S.entwurf[k])};
+
+let tt;function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>e.classList.remove('on'),2600)}
+function zeige(d,cb){let f=false;const fm=d.querySelector('form');const ende=v=>{if(f)return;f=true;fm.removeEventListener('submit',sb);d.removeEventListener('close',cl);cb(v)};const sb=e=>ende(e.submitter?e.submitter.value:''),cl=()=>ende(d.returnValue);fm.addEventListener('submit',sb);d.addEventListener('close',cl);d.returnValue='';d.showModal()}
+function fragen(t,p,o){o=o||{};return new Promise(res=>{const d=$('#dlg'),i=$('#dI');$('#dT').textContent=t;$('#dP').textContent=p||'';i.hidden=o.eingabe===undefined;i.value=o.eingabe||'';$('#dOk').textContent=o.ok||'OK';zeige(d,v=>res(v==='ok'?(o.eingabe===undefined?true:(i.value.trim()||o.eingabe)):null));if(!i.hidden)i.select()})}
+const verwerfenOk=async()=>!geaendert()||fragen('Änderungen verwerfen?','Die Änderungen an „'+S.entwurf.name+'“ sind nicht gespeichert.',{ok:'Verwerfen'});
+
+const kopf=()=>'<header class="top"><div class="logo">'+ic('flame')+'<span>GLUT</span></div><button class="icbtn" data-act="theme" aria-label="'+(S.theme==='dark'?'Zum hellen Design wechseln':'Zum dunklen Design wechseln')+'">'+ic(S.theme==='dark'?'moon':'sun')+'</button></header>';
+const meta=r=>nfm(0).format(r.pizzen)+' Pizzen · '+nfm(1).format(r.gewicht)+' g';
+const hydr=r=>'<span class="pill">'+nfm(1).format(r.hydration)+' % Hydration</span>';
+
+function vStart(){const h=new Date().getHours();const gruss=h<5?'Gute Nacht':h<11?'Guten Morgen':h<18?'Guten Tag':'Guten Abend';
+ const zul=[...S.rezepte].sort((a,b)=>b.geaendertAm-a.geaendertAm).slice(0,4);
+ const sperre=(n,t,bild)=>'<div class="kat off" style="--bild:url(img/'+bild+'.jpg)"><span class="tag">'+ic('lock')+'Bald</span><b>'+n+'</b><small>'+t+'</small></div>';
+ return kopf()+'<p class="gruss"><i></i>'+gruss+'</p><h1>Feuer, Mehl &amp;<br><em>Leidenschaft</em></h1><p class="lead">Präzise Teigführung für den perfekten Ofentag.</p>'
+ +'<h2 class="sec">Was kochst du heute?</h2>'
+ +'<a class="kat on" href="#rechner" style="--bild:url(img/pizza.jpg)"><span class="tag">Teigrechner '+ic('arrow')+'</span><b>Pizza</b><small>Teig, Gare, perfekter Rand</small></a>'
+ +sperre('Grillen','Glut, Marinaden, Temperaturen','grillen')+sperre('Kochen','Alltag und Lieblingsgerichte','kochen')
+ +'<div class="rowhead"><h2 class="sec">Zuletzt gebacken</h2><a class="link" href="#rezepte">Alle ansehen ›</a></div>'
+ +'<div class="hs">'+zul.map(r=>'<button class="mini" data-act="oeffne" data-id="'+esc(r.id)+'">'+hydr(r)+'<b>'+esc(r.name)+'</b><span class="m"><span>'+meta(r)+'</span><span>'+nfm(1).format(r.stunden)+' h</span></span></button>').join('')+'</div>'}
+
+function step(f,label,sub,unit){const e=S.entwurf,d=SP[f][3];
+ return '<div class="row"><div class="lab"><b>'+label+'</b><small>'+sub+'</small></div><div class="stp"><button class="rb" data-act="step" data-f="'+f+'" data-d="-1" aria-label="'+label+' verringern">'+ic('minus')+'</button><label class="val"><input inputmode="decimal" data-f="'+f+'" value="'+nfm(d).format(e[f])+'" aria-label="'+label+'"><small>'+unit+'</small></label><button class="rb p" data-act="step" data-f="'+f+'" data-d="1" aria-label="'+label+' erhöhen">'+ic('plus')+'</button></div></div>'}
+function hefeHtml(){const e=S.entwurf,r=rechnen(e);
+ return ui.hefeEdit
+ ?'<div class="hefe"><div><b>Hefe in % vom Mehl</b><small>Enter zum Übernehmen</small></div><input id="hefeIn" inputmode="decimal" value="'+nfm(3).format(r.hp)+'" aria-label="Hefe in Prozent"></div>'
+ :'<div class="hefe"><div><b>'+(e.hefeManuell!=null?'Hefe (manuell)':'Berechnete Hefe')+'<span>'+nff(2).format(r.hp)+' %</span></b><small>'+(e.hefeManuell!=null?'<button class="link" data-act="hefeAuto">Zurück auf automatisch</button>':'automatisch aus der Gare-Zeit berechnet')+'</small></div><button class="icbtn s" data-act="hefeEdit" aria-label="Hefe-Prozent manuell ändern">'+ic('pencil')+'</button></div>';
+ }
+function zutHtml(){const e=S.entwurf,r=rechnen(e),art=e.hefeart==='trocken'?'Trockenhefe':'Frischhefe';
+ const z=(c,n,sub,w,d)=>'<div class="zut"><i class="d" style="background:var(--'+c+')"></i><div><b>'+n+'</b><small>'+sub+'</small></div><div class="gr"><strong>'+nff(d).format(w)+'</strong> g</div></div>';
+ return '<h2>Zutaten <span class="ges">Gesamt: '+nfm(0).format(r.gesamt)+' g</span></h2>'
+ +z('mehl','Mehl <small>(Pizzamehl Type 00)</small>','Basis (100 %)',r.mehl,0)
+ +z('wasser','Wasser <small>(kalt)</small>','Hydration '+nfm(1).format(e.hydration)+' %',r.wasser,0)
+ +z('salz','Salz <small>(Meersalz)</small>',nfm(1).format(e.salz)+' %',r.salz,1)
+ +z('hefe',art,nff(2).format(r.hp)+' % · '+nfm(1).format(e.stunden)+' h bei 5 °C',r.hefe,r.hefe<1?2:1)}
+function schritteHtml(){const e=S.entwurf,zl=e.schritte.split('\n').map(s=>s.trim()).filter(Boolean);
+ return '<button class="acc" data-act="schritteAuf" aria-expanded="'+ui.schritteAuf+'">'+ic('list')+'Zubereitungsschritte<span class="cnt">'+zl.length+(zl.length===1?' Schritt':' Schritte')+'</span>'+ic('chev')+'</button>'
+ +(ui.schritteAuf?(ui.schritteEdit
+  ?'<textarea id="schrIn" aria-label="Zubereitungsschritte, ein Schritt pro Zeile" placeholder="Ein Schritt pro Zeile">'+esc(e.schritte)+'</textarea><button class="btn2" data-act="schritteEdit">Fertig</button>'
+  :(zl.length?'<ol class="schr">'+zl.map(s=>'<li>'+esc(s)+'</li>').join('')+'</ol>':'<p class="schr-leer">Noch keine Schritte eingetragen.</p>')+'<button class="btn2" data-act="schritteEdit">Bearbeiten</button>'):'')}
+function vRechner(){const e=S.entwurf;
+ return '<header class="top rtop"><a class="icbtn" href="#start" aria-label="Zurück zur Startseite">'+ic('back')+'</a><h1>Pizza-Rechner</h1><button class="icbtn" data-act="speichern" aria-label="Rezept speichern">'+ic('mark')+'<i class="dot" id="dirty"'+(geaendert()?'':' hidden')+'></i></button></header>'
+ +'<div class="recbar"><label class="recsel"><small>Aktives Rezept</small><select id="recSel">'+S.rezepte.map(r=>'<option value="'+esc(r.id)+'"'+(r.id===S.aktiv?' selected':'')+'>'+esc(r.name)+'</option>').join('')+'</select></label><button class="btn3" data-act="kopie">'+ic('copy')+'Kopie erstellen</button></div>'
+ +'<section class="card"><h2>Teig-Parameter</h2>'
+ +step('pizzen','Pizzen','Anzahl Teiglinge','')+step('gewicht','Gewicht je Teigling','pro Kugel','Gramm')+step('hydration','Hydration','Wasser auf Mehl','Prozent')+step('salz','Salz','auf Mehl','% auf Mehl')+step('stunden','Gare im Kühlschrank','bei 5 °C','Stunden')
+ +'<div class="seg" role="radiogroup" aria-label="Hefeart"><button role="radio" data-act="art" data-v="frisch" class="'+(e.hefeart==='frisch'?'on':'')+'" aria-checked="'+(e.hefeart==='frisch')+'">Frischhefe</button><button role="radio" data-act="art" data-v="trocken" class="'+(e.hefeart==='trocken'?'on':'')+'" aria-checked="'+(e.hefeart==='trocken')+'">Trockenhefe</button></div>'
+ +'<div id="hefebox">'+hefeHtml()+'</div></section>'
+ +'<section class="card" id="zut">'+zutHtml()+'</section>'
+ +'<section class="card" id="schr">'+schritteHtml()+'</section>'
+ +'<a class="btn" href="#zeitplan">'+ic('clock')+'Zeitplan erstellen</a><button class="btn2" data-act="speichern">'+ic('mark')+'Rezept speichern</button>'}
+function patchRechner(){const e=S.entwurf;document.querySelectorAll('#app input[data-f]').forEach(i=>{if(document.activeElement!==i)i.value=nfm(SP[i.dataset.f][3]).format(e[i.dataset.f])});
+ $('#hefebox').innerHTML=hefeHtml();$('#zut').innerHTML=zutHtml();document.querySelectorAll('[data-act=art]').forEach(b=>{const on=b.dataset.v===e.hefeart;b.classList.toggle('on',on);b.setAttribute('aria-checked',on)});dirtyDot()}
+function dirtyDot(){const d=$('#dirty');if(d)d.hidden=!geaendert()}
+
+function vRezepte(){const n=S.rezepte.length;
+ const chip=(t,i)=>'<span class="chip">'+(i?ic(i)+t+'<em>Bald</em>':t)+'</span>';
+ return kopf()+'<div class="titel"><div><h1>Rezepte</h1><small>'+n+(n===1?' Teigführung':' Teigführungen')+' gesichert</small></div><button class="fab" data-act="neu" aria-label="Neues Rezept">'+ic('plus')+'</button></div>'
+ +'<div class="chips"><span class="chip on">Pizza</span>'+chip('Grillen','lock')+chip('Kochen','lock')+'</div>'
+ +S.rezepte.map(r=>'<article class="rez"><button class="main" data-act="oeffne" data-id="'+esc(r.id)+'"><img src="img/pizza.jpg" alt=""><span>'+hydr(r)+'<b>'+esc(r.name)+'</b><small>'+meta(r)+' · '+nfm(1).format(r.stunden)+' h Kühlschrank</small></span></button><button class="icbtn s" data-act="menue" data-id="'+esc(r.id)+'" aria-label="Aktionen für '+esc(r.name)+'">'+ic('more')+'</button></article>').join('')
+ +'<section class="card sich"><h2>'+ic('shield')+' Sicherung</h2><p>Deine Rezepte liegen nur auf diesem iPhone.</p><button data-act="export">'+ic('up')+'Sicherung exportieren</button><button data-act="import">'+ic('down')+'Sicherung einlesen</button></section>'}
+
+function tlHtml(){const e=S.entwurf,bm=new Date(S.backzeit).getTime();if(!isFinite(bm))return '';const z=zeitplan(e,bm);
+ const t=(ms,cls,tit,txt)=>{const d=new Date(ms);return '<li class="st '+cls+'"><div class="t">'+WT[d.getDay()]+' · '+p2(d.getHours())+':'+p2(d.getMinutes())+'<small>'+p2(d.getDate())+'.'+p2(d.getMonth()+1)+'.</small></div><div class="l"></div><div class="c"><b>'+tit+'</b><small>'+esc(txt)+'</small></div></li>'};
+ return t(z.kneten,'','Teig kneten','Zutaten laut Rezept verarbeiten')
+ +t(z.formen,'','Teiglinge formen',e.pizzen+' Teiglinge à '+nfm(1).format(e.gewicht)+' g, abdecken und in den Kühlschrank (5 °C)')
+ +'<li class="kb"><span>'+ic('snow')+nfm(1).format(e.stunden)+' Std. im Kühlschrank</span></li>'
+ +t(z.raus,'','Aus dem Kühlschrank',RAUM_H+' Std. bei Raumtemperatur akklimatisieren')
+ +t(z.backen,'end','Pizza backen','Ofen vorheizen, Teiglinge ausziehen und backen')
+ +(z.kneten<Date.now()?'<li class="warn" style="margin-top:6px">Der Start wäre schon vorbei. Wähle eine spätere Backzeit.</li>':'')}
+function vZeitplan(){const e=S.entwurf;
+ return kopf()+'<h1>Zeitplan</h1><p class="lead" style="margin-bottom:16px">Rückwärts von deiner Backzeit</p>'
+ +'<section class="card zeit"><label class="zrow"><span class="ico">'+ic('slice')+'</span><span style="flex:1;min-width:0"><small>Rezept</small><select id="zSel">'+S.rezepte.map(r=>'<option value="'+esc(r.id)+'"'+(r.id===S.aktiv?' selected':'')+'>'+esc(r.name)+' · '+nfm(1).format(r.id===S.aktiv?e.stunden:r.stunden)+' h Kühlschrank</option>').join('')+'</select></span></label>'
+ +'<label class="zrow"><span class="ico">'+ic('clock')+'</span><span style="flex:1;min-width:0"><small>Gebacken wird am</small><input type="datetime-local" id="bz" value="'+esc(S.backzeit)+'"></span></label></section>'
+ +'<ul class="tl" id="tl" style="padding:0">'+tlHtml()+'</ul>'
+ +'<div class="hinweis">'+ic('info')+'<span>Die Zeiten rechnen sich neu, sobald du Backzeit oder Rezept änderst.</span></div>'}
+
+const ROUTEN={start:vStart,rechner:vRechner,rezepte:vRezepte,zeitplan:vZeitplan};
+const NAV=[['start','slice','Start'],['rezepte','book','Rezepte'],['zeitplan','clock','Zeitplan']];
+const ansicht=()=>{const h=location.hash.slice(1);return ROUTEN[h]?h:'start'};
+function render(){const v=ansicht();document.documentElement.dataset.theme=S.theme;
+ document.querySelector('meta[name=theme-color]').content=S.theme==='dark'?'#151210':'#FAF5EE';
+ $('#app').innerHTML=ROUTEN[v]();
+ $('nav.tabs').innerHTML=NAV.map(n=>'<a href="#'+n[0]+'"'+(n[0]===v?' aria-current="page"':'')+'>'+ic(n[1])+n[2]+'</a>').join('');
+ if(v!==letzte){window.scrollTo(0,0);letzte=v}}
+
+async function wechsle(id){if(id===S.aktiv)return true;if(!await verwerfenOk())return false;const r=S.rezepte.find(x=>x.id===id);if(!r)return false;S.aktiv=id;S.entwurf=norm(r);ui.hefeEdit=false;ui.schritteEdit=false;sichern();return true}
+function kopieVon(basis,name){const r=norm(Object.assign({},basis,{id:neueId(),name,geaendertAm:Date.now()}));S.rezepte.push(r);S.aktiv=r.id;S.entwurf=norm(r);sichern();return r}
+function setze(f,v){S.entwurf[f]=v;if(f==='hefeart')S.entwurf.hefeManuell=null;sichern();patchRechner()}
+function klemme(f,v){const[,mn,mx,d]=SP[f];return Math.round(Math.min(mx,Math.max(mn,v))*Math.pow(10,d+1))/Math.pow(10,d+1)}
+const parse=s=>parseFloat(String(s).replace(',','.'));
+
+const AKT={
+ theme(){S.theme=S.theme==='dark'?'light':'dark';sichern();render()},
+ step(b){const f=b.dataset.f;setze(f,klemme(f,S.entwurf[f]+Number(b.dataset.d)*SP[f][0]))},
+ art(b){setze('hefeart',b.dataset.v)},
+ hefeEdit(){ui.hefeEdit=!ui.hefeEdit;$('#hefebox').innerHTML=hefeHtml();const i=$('#hefeIn');if(i)i.focus()},
+ hefeAuto(){S.entwurf.hefeManuell=null;sichern();patchRechner()},
+ schritteAuf(){ui.schritteAuf=!ui.schritteAuf;$('#schr').innerHTML=schritteHtml()},
+ schritteEdit(){ui.schritteEdit=!ui.schritteEdit;$('#schr').innerHTML=schritteHtml();const t=$('#schrIn');if(t)t.focus()},
+ speichern(){const a=aktivRez();FELDER.forEach(k=>a[k]=S.entwurf[k]);a.geaendertAm=Date.now();sichern();dirtyDot();toast('Rezept gespeichert')},
+ async kopie(){const n=await fragen('Kopie erstellen','Name für die Kopie von „'+S.entwurf.name+'“',{eingabe:S.entwurf.name+' Kopie',ok:'Erstellen'});if(n===null)return;kopieVon(S.entwurf,n);render();toast('Kopie erstellt')},
+ async neu(){const n=await fragen('Neues Rezept','Startet mit den Werten des Grundrezepts.',{eingabe:'Neues Rezept',ok:'Erstellen'});if(n===null)return;if(!await verwerfenOk())return;kopieVon(GRUND,n);location.hash='#rechner'},
+ async oeffne(b){if(await wechsle(b.dataset.id))location.hash='#rechner'},
+ menue(b){const r=S.rezepte.find(x=>x.id===b.dataset.id);if(!r)return;ui.menuId=r.id;$('#mT').textContent=r.name;zeige($('#mn'),menuAktion)},
+ export(){exportieren()},
+ import(){$('#imp').click()}
+};
+async function menuAktion(a){const r=S.rezepte.find(x=>x.id===ui.menuId);if(!r||!a)return;
+ if(a==='kopie'){const n=await fragen('Kopie erstellen','Name für die Kopie von „'+r.name+'“',{eingabe:r.name+' Kopie',ok:'Erstellen'});if(n===null)return;if(!await verwerfenOk())return;kopieVon(r,n);render();toast('Kopie erstellt')}
+ if(a==='loeschen'){if(!await fragen('Rezept löschen?','„'+r.name+'“ wird endgültig gelöscht.',{ok:'Löschen'}))return;S.rezepte=S.rezepte.filter(x=>x.id!==r.id);if(!S.rezepte.length)S.rezepte=[norm(GRUND)];if(S.aktiv===r.id){S.aktiv=S.rezepte[0].id;S.entwurf=norm(S.rezepte[0])}sichern();render();toast('Rezept gelöscht')}}
+
+async function exportieren(){const d={app:'glut',version:1,exportiert:new Date().toISOString(),aktiv:S.aktiv,rezepte:S.rezepte};const name='glut-sicherung-'+lokalDT(new Date()).slice(0,10)+'.json';const f=new File([JSON.stringify(d,null,1)],name,{type:'application/json'});
+ if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],title:'GLUT Sicherung'});return}catch(e){if(e.name==='AbortError')return}}
+ const a=document.createElement('a');a.href=URL.createObjectURL(f);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000)}
+async function einlesen(file){let d;try{d=JSON.parse(await file.text())}catch(e){return toast('Datei nicht lesbar')}
+ if(!d||d.app!=='glut'||!Array.isArray(d.rezepte)||!d.rezepte.length)return toast('Das ist keine GLUT-Sicherung');
+ const neu=d.rezepte.map(norm);
+ if(!await fragen('Sicherung einlesen?',neu.length+' Rezepte einlesen. Deine aktuellen '+S.rezepte.length+' Rezepte werden ersetzt.',{ok:'Einlesen'}))return;
+ try{localStorage.setItem(KEY+'.vorimport',JSON.stringify(S))}catch(e){}
+ S.rezepte=neu;S.aktiv=neu.some(r=>r.id===d.aktiv)?d.aktiv:neu[0].id;S.entwurf=norm(S.rezepte.find(r=>r.id===S.aktiv));sichern();render();toast(neu.length+' Rezepte eingelesen')}
+
+document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(b&&AKT[b.dataset.act])AKT[b.dataset.act](b)});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('input:not([type=file]),select'))e.target.blur()});
+document.addEventListener('change',async e=>{const t=e.target;
+ if(t.matches('input[data-f]')){const f=t.dataset.f,v=parse(t.value);if(isFinite(v)){const k=klemme(f,v);t.value=nfm(SP[f][3]).format(k);setze(f,k)}else t.value=nfm(SP[f][3]).format(S.entwurf[f])}
+ else if(t.id==='hefeIn'){const v=parse(t.value);ui.hefeEdit=false;if(isFinite(v)){S.entwurf.hefeManuell=Math.min(5,Math.max(0,v));sichern()}patchRechner()}
+ else if(t.id==='schrIn'){S.entwurf.schritte=t.value;sichern();dirtyDot()}
+ else if(t.id==='recSel'){if(!await wechsle(t.value))t.value=S.aktiv;else render()}
+ else if(t.id==='zSel'){if(!await wechsle(t.value))t.value=S.aktiv;else $('#tl').innerHTML=tlHtml()}
+ else if(t.id==='bz'){if(t.value){S.backzeit=t.value;sichern();$('#tl').innerHTML=tlHtml()}}
+ else if(t.id==='imp'){if(t.files[0])einlesen(t.files[0]);t.value=''}});
+window.addEventListener('hashchange',render);
+
+S=laden();render();
+if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
+})();
+</script>
+</body>
+</html>
