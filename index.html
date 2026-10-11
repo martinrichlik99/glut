@@ -166,7 +166,15 @@ dialog input[hidden]{display:none}
 #toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 92px);transform:translate(-50%,20px);opacity:0;transition:.25s;background:var(--tx);color:var(--bg);padding:10px 16px;border-radius:14px;font-weight:600;z-index:9;pointer-events:none;max-width:calc(100% - 40px)}
 #toast.on{opacity:1;transform:translate(-50%,0)}
 .ph{display:grid;place-items:center;background:var(--pill);color:var(--pt)}
-.rez .ph{width:76px;height:76px;border-radius:14px;flex:none}
+.kcat,.kzl{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--s1);border:1px solid var(--ln)}
+.kcat{padding:18px 16px;margin-bottom:10px;border-radius:18px}
+.kcat b{flex:1;font-size:18px}
+.kcat.leer{opacity:.55}
+.kzl{min-height:56px;padding:0 14px;margin-bottom:8px;border-radius:14px}
+.kzl b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:16px}
+.kzl i{display:flex;color:var(--pt)}
+.kcat svg.i,.kzl svg.i{flex:none;color:var(--mu);transform:rotate(-90deg)}
+.kzl i svg.i{width:16px;height:16px;color:var(--pt);transform:none}
 .hero{border-radius:22px;overflow:hidden;margin:4px 0 16px;aspect-ratio:4/3;background:var(--s1);border:1px solid var(--ln)}
 .hero img{width:100%;height:100%;object-fit:cover;display:block}
 .hero .ph{width:100%;height:100%}
@@ -259,7 +267,7 @@ function zahl(v,def,min,max){v=Number(v);return isFinite(v)?Math.min(max,Math.ma
 function norm(r){r=r||{};return{id:/^[\w-]{1,40}$/.test(r.id)?r.id:neueId(),name:String(r.name||'Rezept').slice(0,60),pizzen:Math.round(zahl(r.pizzen,6,1,99)),gewicht:zahl(r.gewicht,292,50,600),hydration:zahl(r.hydration,68,40,100),salz:zahl(r.salz,3,0,6),biga:zahl(r.biga,0,0,72),bigaMehl:zahl(r.bigaMehl,100,10,100),bigaWasser:zahl(r.bigaWasser,47.6,30,70),bigaHefe:zahl(r.bigaHefe,100,0,100),stock:zahl(r.stock,0.5,0,12),stunden:zahl(r.stunden,46,0,120),stueck:zahl(r.stueck,1,0,12),hefeart:r.hefeart==='trocken'?'trocken':'frisch',hefeManuell:r.hefeManuell==null?null:zahl(r.hefeManuell,0.25,0,5),schritte:String(r.schritte||'').slice(0,4000),geaendertAm:Number(r.geaendertAm)||0}}
 
 const KEY='glut.v1';
-let S,K,ui={hefeEdit:false,schritteAuf:true,schritteEdit:false,menuId:null,kochId:null,kform:null},letzte='';
+let S,K,ui={hefeEdit:false,schritteAuf:true,schritteEdit:false,menuId:null,kochId:null,kochKat:null,kform:null},letzte='';
 function laden(){let d=null;try{d=JSON.parse(localStorage.getItem(KEY))}catch(e){}
  d=d&&typeof d==='object'?d:{};
  if(!(d.v>=2)&&Array.isArray(d.rezepte)){const i=d.rezepte.findIndex(r=>r&&r.id==='grundrezept'&&!r.geaendertAm);
@@ -372,20 +380,22 @@ const katOpts=()=>alleKats().map(k=>'<option'+(k===ui.kform.kat?' selected':'')+
 const prevHtml=()=>ui.kform.bild?'<img src="'+esc(ui.kform.bild)+'" alt="Vorschau">':'<i class="ph">'+ic('cook')+'</i>';
 function verkleinern(file){return new Promise((ok,nein)=>{const u=URL.createObjectURL(file),im=new Image();im.onload=()=>{const s=Math.min(1,800/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);ok(c.toDataURL('image/jpeg',.75))};im.onerror=()=>{URL.revokeObjectURL(u);nein()};im.src=u})}
 
-function kKarte(r){return '<article class="rez"><button class="main" data-act="kOeffne" data-id="'+esc(r.id)+'">'+(r.bild?'<img src="'+esc(r.bild)+'" alt="">':'<i class="ph">'+ic('cook')+'</i>')+'<span><b>'+esc(r.name)+'</b><small>'+esc(r.kat)+(r.video?' · Video':'')+'</small></span></button></article>'}
-function vKochen(){const n=K.rezepte.length,grp=alleKats().map(k=>[k,K.rezepte.filter(r=>r.kat===k).sort((a,b)=>a.name.localeCompare(b.name,'de'))]).filter(g=>g[1].length);
+function vKochen(){const n=K.rezepte.length;
  return kopf()+'<div class="titel"><div><h1>Kochen</h1><small>'+n+(n===1?' Rezept':' Rezepte')+'</small></div><button class="fab" data-act="kNeu" aria-label="Neues Kochrezept">'+ic('plus')+'</button></div>'
- +(grp.length?grp.map(([k,l])=>'<h2 class="sec kk">'+esc(k)+'<small>'+l.length+'</small></h2>'+l.map(kKarte).join('')).join(''):'<p class="schr-leer">Noch keine Rezepte. Tippe auf das Plus.</p>')
+ +alleKats().map(k=>{const c=K.rezepte.filter(r=>r.kat===k).length;return '<button class="kcat'+(c?'':' leer')+'" data-act="kKat" data-k="'+esc(k)+'"><b>'+esc(k)+'</b><small>'+c+(c===1?' Rezept':' Rezepte')+'</small>'+ic('chev')+'</button>'}).join('')
  +'<div class="hinweis">'+ic('info')+'<span>Die Sicherung (Pizza und Kochen) findest du unter „Rezepte“.</span></div>'}
+function vKat(){const k=ui.kochKat;if(k==null)return vKochen();const l=K.rezepte.filter(r=>r.kat===k).sort((x,y)=>x.name.localeCompare(y.name,'de'));
+ return '<header class="top rtop"><a class="icbtn" href="#kochen" aria-label="Zurück zu den Kategorien">'+ic('back')+'</a><h1>'+esc(k)+'</h1><button class="icbtn" data-act="kNeu" aria-label="Neues Rezept in '+esc(k)+'">'+ic('plus')+'</button></header>'
+ +(l.length?l.map(r=>'<button class="kzl" data-act="kOeffne" data-id="'+esc(r.id)+'"><b>'+esc(r.name)+'</b>'+(r.video?'<i aria-label="mit Video">'+ic('play')+'</i>':'')+ic('chev')+'</button>').join(''):'<p class="schr-leer">Noch keine Rezepte in dieser Kategorie.</p>')}
 function vKoch(){const r=K.rezepte.find(x=>x.id===ui.kochId);if(!r)return vKochen();const zl=r.zutaten.split('\n').map(x=>x.trim());
- return '<header class="top rtop"><a class="icbtn" href="#kochen" aria-label="Zurück zur Liste">'+ic('back')+'</a><h1>'+esc(r.kat)+'</h1><button class="icbtn" data-act="kEdit" aria-label="Rezept bearbeiten">'+ic('pencil')+'</button></header>'
+ return '<header class="top rtop"><a class="icbtn" href="#kat" aria-label="Zurück zur Kategorie">'+ic('back')+'</a><h1>'+esc(r.kat)+'</h1><button class="icbtn" data-act="kEdit" aria-label="Rezept bearbeiten">'+ic('pencil')+'</button></header>'
  +'<div class="hero">'+(r.bild?'<img src="'+esc(r.bild)+'" alt="">':'<i class="ph">'+ic('cook')+'</i>')+'</div><h1 class="kt">'+esc(r.name)+'</h1>'
  +(r.video?'<a class="btn vid" href="'+esc(r.video)+'" target="_blank" rel="noopener noreferrer">'+ic('play')+'Video ansehen</a>':'')
  +'<section class="card"><h2>Zutaten</h2>'+(zl.some(Boolean)?'<ul class="kz">'+zl.filter(Boolean).map(x=>x.endsWith(':')?'<li class="kh">'+esc(x.slice(0,-1))+'</li>':'<li>'+esc(x)+'</li>').join('')+'</ul>':'<p class="schr-leer">Keine Zutaten eingetragen.</p>')+'</section>'
  +'<section class="card"><h2>Beschreibung</h2><p class="kbs">'+esc(r.text||'Noch keine Beschreibung.')+'</p></section>'
  +'<button class="btn2 gef" data-act="kDel">'+ic('trash')+'Rezept löschen</button>'}
 function vKForm(){const f=ui.kform;if(!f)return vKochen();
- return '<header class="top rtop"><a class="icbtn" href="#'+(f.id?'koch':'kochen')+'" aria-label="Abbrechen">'+ic('back')+'</a><h1>'+(f.id?'Rezept bearbeiten':'Neues Rezept')+'</h1><span></span></header>'
+ return '<header class="top rtop"><a class="icbtn" href="'+f.zurueck+'" aria-label="Abbrechen">'+ic('back')+'</a><h1>'+(f.id?'Rezept bearbeiten':'Neues Rezept')+'</h1><span></span></header>'
  +'<section class="card"><label class="fld"><span>Titel</span><input id="kN" maxlength="80" autocomplete="off" value="'+esc(f.name)+'"></label>'
  +'<label class="fld"><span>Kategorie</span><select id="kKat">'+katOpts()+'</select></label>'
  +'<div class="fld"><span>Bild</span><div class="hero kl" id="kPrev">'+prevHtml()+'</div><div class="bb"><button type="button" data-act="kBild">Foto wählen</button><button type="button" data-act="kBildWeg">Entfernen</button></div></div>'
@@ -394,7 +404,7 @@ function vKForm(){const f=ui.kform;if(!f)return vKochen();
  +'<label class="fld"><span>Video-Link (optional)</span><input id="kV" type="url" inputmode="url" autocomplete="off" placeholder="https://" value="'+esc(f.video)+'"></label></section>'
  +'<button class="btn" data-act="kSave">'+ic('mark')+'Rezept speichern</button>'}
 
-const ROUTEN={start:vStart,rechner:vRechner,rezepte:vRezepte,zeitplan:vZeitplan,kochen:vKochen,koch:vKoch,kform:vKForm};
+const ROUTEN={start:vStart,rechner:vRechner,rezepte:vRezepte,zeitplan:vZeitplan,kochen:vKochen,kat:vKat,koch:vKoch,kform:vKForm};
 const NAV=[['start','slice','Start'],['rezepte','book','Rezepte'],['zeitplan','clock','Zeitplan']];
 const ansicht=()=>{const h=location.hash.slice(1);return ROUTEN[h]?h:'start'};
 function render(){const v=ansicht();document.documentElement.dataset.theme=S.theme;
@@ -424,15 +434,16 @@ const AKT={
  menue(b){const r=S.rezepte.find(x=>x.id===b.dataset.id);if(!r)return;ui.menuId=r.id;$('#mT').textContent=r.name;zeige($('#mn'),menuAktion)},
  export(){exportieren()},
  import(){$('#imp').click()},
- kNeu(){ui.kform={id:null,name:'',kat:KATS[1],bild:'',video:'',zutaten:'',text:''};location.hash='#kform'},
- kOeffne(b){ui.kochId=b.dataset.id;location.hash='#koch'},
- kEdit(){const r=K.rezepte.find(x=>x.id===ui.kochId);if(r){ui.kform=Object.assign({},r);location.hash='#kform'}},
+ kKat(b){ui.kochKat=b.dataset.k;location.hash='#kat'},
+ kNeu(){const k=location.hash==='#kat'&&ui.kochKat!=null;ui.kform={id:null,name:'',kat:k?ui.kochKat:KATS[1],bild:'',video:'',zutaten:'',text:'',zurueck:k?'#kat':'#kochen'};location.hash='#kform'},
+ kOeffne(b){const r=K.rezepte.find(x=>x.id===b.dataset.id);ui.kochId=b.dataset.id;ui.kochKat=r?r.kat:null;location.hash='#koch'},
+ kEdit(){const r=K.rezepte.find(x=>x.id===ui.kochId);if(r){ui.kform=Object.assign({},r,{zurueck:'#koch'});location.hash='#kform'}},
  kBild(){$('#kFile').click()},
  kBildWeg(){ui.kform.bild='';$('#kPrev').innerHTML=prevHtml()},
  kSave(){const f=ui.kform,n=$('#kN').value.trim(),v=$('#kV').value.trim();if(!n)return toast('Titel fehlt');if(v&&!/^https?:\/\/\S+$/i.test(v))return toast('Video-Link muss mit https:// beginnen');
   const r=normK({id:f.id,name:n,kat:f.kat,bild:f.bild,video:v,zutaten:$('#kZ').value,text:$('#kT').value,geaendertAm:Date.now()});
-  K.rezepte=f.id?K.rezepte.map(x=>x.id===r.id?r:x):[...K.rezepte,r];sichernK();ui.kochId=r.id;ui.kform=null;location.hash='#koch';toast('Rezept gespeichert')},
- async kDel(){const r=K.rezepte.find(x=>x.id===ui.kochId);if(!r||!await fragen('Rezept löschen?','„'+r.name+'“ wird endgültig gelöscht.',{ok:'Löschen'}))return;K.rezepte=K.rezepte.filter(x=>x.id!==r.id);sichernK();ui.kochId=null;location.hash='#kochen';toast('Rezept gelöscht')}
+  K.rezepte=f.id?K.rezepte.map(x=>x.id===r.id?r:x):[...K.rezepte,r];sichernK();ui.kochId=r.id;ui.kochKat=r.kat;ui.kform=null;location.hash='#koch';toast('Rezept gespeichert')},
+ async kDel(){const r=K.rezepte.find(x=>x.id===ui.kochId);if(!r||!await fragen('Rezept löschen?','„'+r.name+'“ wird endgültig gelöscht.',{ok:'Löschen'}))return;K.rezepte=K.rezepte.filter(x=>x.id!==r.id);sichernK();ui.kochId=null;location.hash=K.rezepte.some(x=>x.kat===r.kat)?'#kat':'#kochen';toast('Rezept gelöscht')}
 };
 async function menuAktion(a){const r=S.rezepte.find(x=>x.id===ui.menuId);if(!r||!a)return;
  if(a==='kopie'){const n=await fragen('Kopie erstellen','Name für die Kopie von „'+r.name+'“',{eingabe:r.name+' Kopie',ok:'Erstellen'});if(n===null)return;if(!await verwerfenOk())return;kopieVon(r,n);render();toast('Kopie erstellt')}
