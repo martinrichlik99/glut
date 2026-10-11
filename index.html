@@ -181,9 +181,8 @@ dialog input[hidden]{display:none}
 // <rechnen>
 const HEFE_REF=0.25,HEFE_REF_H=46;
 function hefeAuto(stunden,art){const f=HEFE_REF*HEFE_REF_H/Math.max(stunden,1);return art==='trocken'?f/3:f}
-const BIGA_WASSER=0.7;
 const kuehl=r=>r.stunden+r.biga;
-function rechnen(r){const hp=r.hefeManuell!=null?r.hefeManuell:hefeAuto(kuehl(r),r.hefeart);const gesamt=r.pizzen*r.gewicht;const mehl=gesamt/(1+(r.hydration+r.salz+hp)/100);const wasser=mehl*r.hydration/100;return{hp,gesamt,mehl,wasser,biga:wasser*BIGA_WASSER,salz:mehl*r.salz/100,hefe:mehl*hp/100}}
+function rechnen(r){const hp=r.hefeManuell!=null?r.hefeManuell:hefeAuto(kuehl(r),r.hefeart);const gesamt=r.pizzen*r.gewicht;const mehl=gesamt/(1+(r.hydration+r.salz+hp)/100);const wasser=mehl*r.hydration/100,hefe=mehl*hp/100,bigaM=mehl*r.bigaMehl/100;return{hp,gesamt,mehl,wasser,hefe,bigaM,bigaW:bigaM*r.bigaWasser/100,bigaH:hefe*r.bigaHefe/100,salz:mehl*r.salz/100}}
 function zeitplan(r,backMs){const h=3600e3;const raus=backMs-r.stueck*h;const formen=raus-r.stunden*h;const kneten=formen-r.stock*h;return{biga:kneten-r.biga*h,kneten,formen,raus,backen:backMs}}
 // </rechnen>
 
@@ -217,12 +216,13 @@ list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
 arrow:'<path d="M5 12h14M12 5l7 7-7 7"/>',info:'<circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>'};
 const ic=n=>'<svg class="i" viewBox="0 0 24 24" aria-hidden="true">'+P[n]+'</svg>';
 
-const GRUND={id:'grundrezept',name:'Grundrezept',pizzen:6,gewicht:280,hydration:65,salz:3,biga:0,stock:1,stunden:46,stueck:2,hefeart:'frisch',hefeManuell:null,schritte:'',geaendertAm:0};
-const BIGA={id:'biga100',name:'Biga 100 %',pizzen:3,gewicht:286,hydration:68,salz:3.2,biga:24,stock:0,stunden:20,stueck:6,hefeart:'frisch',hefeManuell:0.25,geaendertAm:0,schritte:['Mehl in einen Behälter mit Deckel geben.','Frischhefe in 70 % des kalten Wassers lösen und über das Mehl verteilen.','Deckel drauf und in alle Richtungen schütteln.','Biga abgedeckt 24 Std. in den Kühlschrank.','Restliches Wasser bereitstellen: einen Schluck in die Rührschüssel, die Biga dazu, noch einen Schluck Wasser darüber.','Kneten und das Salz dazugeben, bis der Teig höchstens 24 °C hat (deshalb immer kaltes Wasser). Kleine Klumpen lösen sich in der Gare.','Teig zu einer Kugel schleifen und 20 Std. in den Kühlschrank.','6 Std. vor dem Backen portionieren, zu Teiglingen schleifen und abgedeckt ruhen lassen.','Pizza ausziehen, belegen und backen.'].join('\n')};
-const SP={pizzen:[1,1,99,0],gewicht:[1,50,600,1],hydration:[1,40,100,1],salz:[0.1,0,6,1],biga:[1,0,72,1],stock:[0.5,0,12,1],stunden:[1,1,120,1],stueck:[0.5,0,12,1]};
-const FELDER=['pizzen','gewicht','hydration','salz','biga','stock','stunden','stueck','hefeart','hefeManuell','schritte'];
+const GRUND={id:'grundrezept',name:'Grundrezept',pizzen:6,gewicht:280,hydration:65,salz:3,biga:0,bigaMehl:100,bigaWasser:47.6,bigaHefe:100,stock:1,stunden:46,stueck:2,hefeart:'frisch',hefeManuell:null,schritte:'',geaendertAm:0};
+const BIGA={id:'biga100',name:'Biga 100 %',pizzen:3,gewicht:286,hydration:68,salz:3.2,biga:24,bigaMehl:100,bigaWasser:47.6,bigaHefe:100,stock:0,stunden:20,stueck:6,hefeart:'frisch',hefeManuell:0.25,geaendertAm:0,schritte:['Mehl in einen Behälter mit Deckel geben.','Frischhefe in 70 % des kalten Wassers lösen und über das Mehl verteilen.','Deckel drauf und in alle Richtungen schütteln.','Biga abgedeckt 24 Std. in den Kühlschrank.','Restliches Wasser bereitstellen: einen Schluck in die Rührschüssel, die Biga dazu, noch einen Schluck Wasser darüber.','Kneten und das Salz dazugeben, bis der Teig höchstens 24 °C hat (deshalb immer kaltes Wasser). Kleine Klumpen lösen sich in der Gare.','Teig zu einer Kugel schleifen und 20 Std. in den Kühlschrank.','6 Std. vor dem Backen portionieren, zu Teiglingen schleifen und abgedeckt ruhen lassen.','Pizza ausziehen, belegen und backen.'].join('\n')};
+const BIGA2={id:'biga50',name:'Biga mit Vorteig',pizzen:3,gewicht:281,hydration:65,salz:2.8,biga:14,bigaMehl:50,bigaWasser:44.8,bigaHefe:80,stock:0,stunden:0,stueck:5,hefeart:'frisch',hefeManuell:1,geaendertAm:0,schritte:['Biga: Mehl in eine Schüssel, die Hefe im kalten Wasser lösen, zum Mehl geben und grob verrühren.','Kneten, bis ein fester, trockener Teig entsteht.','In rustikale Stücke zupfen und in einer Dose verschließen.','1 Std. bei Raumtemperatur anspringen lassen, dann über Nacht in den Kühlschrank (12–16 Std.).','Hauptteig: Biga in Würfel schneiden, mit restlichem Mehl und Hefe in die Maschine geben.','Etwa die Hälfte des kalten Wassers dazu und kneten; sobald das Mehl das Wasser gebunden hat, das restliche Wasser und kurz darauf das Salz.','Kneten, bis der Teig geschmeidig ist (höchstens 24 °C).','Teig auf die Arbeitsplatte stürzen, dehnen und falten, zu einer Kugel schleifen und 15 Min. abgedeckt ruhen lassen.','In Teiglinge teilen, auf Spannung schleifen und 5 Std. abgedeckt bei Raumtemperatur ruhen lassen.','Luft in den Rand drücken, ausziehen, belegen und backen.'].join('\n')};
+const SP={pizzen:[1,1,99,0],gewicht:[1,50,600,1],hydration:[1,40,100,1],salz:[0.1,0,6,1],biga:[1,0,72,1],bigaMehl:[5,10,100,0],bigaWasser:[1,30,70,1],bigaHefe:[5,0,100,0],stock:[0.5,0,12,1],stunden:[1,0,120,1],stueck:[0.5,0,12,1]};
+const FELDER=['pizzen','gewicht','hydration','salz','biga','bigaMehl','bigaWasser','bigaHefe','stock','stunden','stueck','hefeart','hefeManuell','schritte'];
 function zahl(v,def,min,max){v=Number(v);return isFinite(v)?Math.min(max,Math.max(min,v)):def}
-function norm(r){r=r||{};return{id:/^[\w-]{1,40}$/.test(r.id)?r.id:neueId(),name:String(r.name||'Rezept').slice(0,60),pizzen:Math.round(zahl(r.pizzen,6,1,99)),gewicht:zahl(r.gewicht,292,50,600),hydration:zahl(r.hydration,68,40,100),salz:zahl(r.salz,3,0,6),biga:zahl(r.biga,0,0,72),stock:zahl(r.stock,0.5,0,12),stunden:zahl(r.stunden,46,1,120),stueck:zahl(r.stueck,1,0,12),hefeart:r.hefeart==='trocken'?'trocken':'frisch',hefeManuell:r.hefeManuell==null?null:zahl(r.hefeManuell,0.25,0,5),schritte:String(r.schritte||'').slice(0,4000),geaendertAm:Number(r.geaendertAm)||0}}
+function norm(r){r=r||{};return{id:/^[\w-]{1,40}$/.test(r.id)?r.id:neueId(),name:String(r.name||'Rezept').slice(0,60),pizzen:Math.round(zahl(r.pizzen,6,1,99)),gewicht:zahl(r.gewicht,292,50,600),hydration:zahl(r.hydration,68,40,100),salz:zahl(r.salz,3,0,6),biga:zahl(r.biga,0,0,72),bigaMehl:zahl(r.bigaMehl,100,10,100),bigaWasser:zahl(r.bigaWasser,47.6,30,70),bigaHefe:zahl(r.bigaHefe,100,0,100),stock:zahl(r.stock,0.5,0,12),stunden:zahl(r.stunden,46,0,120),stueck:zahl(r.stueck,1,0,12),hefeart:r.hefeart==='trocken'?'trocken':'frisch',hefeManuell:r.hefeManuell==null?null:zahl(r.hefeManuell,0.25,0,5),schritte:String(r.schritte||'').slice(0,4000),geaendertAm:Number(r.geaendertAm)||0}}
 
 const KEY='glut.v1';
 let S,ui={hefeEdit:false,schritteAuf:true,schritteEdit:false,menuId:null},letzte='';
@@ -230,11 +230,11 @@ function laden(){let d=null;try{d=JSON.parse(localStorage.getItem(KEY))}catch(e)
  d=d&&typeof d==='object'?d:{};
  if(!(d.v>=2)&&Array.isArray(d.rezepte)){const i=d.rezepte.findIndex(r=>r&&r.id==='grundrezept'&&!r.geaendertAm);
   if(i>=0){const e=d.entwurf;if(!e||e.id!=='grundrezept'||FELDER.every(k=>e[k]===d.rezepte[i][k]))delete d.entwurf;d.rezepte[i]=GRUND}}
- if(!(d.v>=3)&&Array.isArray(d.rezepte)&&!d.rezepte.some(r=>r&&r.id===BIGA.id))d.rezepte.push(BIGA);
- const rez=(Array.isArray(d.rezepte)&&d.rezepte.length?d.rezepte:[GRUND,BIGA]).map(norm);
+ if(Array.isArray(d.rezepte))[[3,BIGA],[4,BIGA2]].forEach(([v,n])=>{if(!(d.v>=v)&&!d.rezepte.some(r=>r&&r.id===n.id))d.rezepte.push(n)});
+ const rez=(Array.isArray(d.rezepte)&&d.rezepte.length?d.rezepte:[GRUND,BIGA,BIGA2]).map(norm);
  const aktiv=rez.some(r=>r.id===d.aktiv)?d.aktiv:rez[0].id;
  const basis=d.entwurf&&d.entwurf.id===aktiv?d.entwurf:rez.find(r=>r.id===aktiv);
- return{v:3,rezepte:rez,aktiv,entwurf:norm(Object.assign({},basis,{id:aktiv,name:rez.find(r=>r.id===aktiv).name})),theme:d.theme==='light'?'light':'dark',backzeit:/^\d{4}-\d\d-\d\dT\d\d:\d\d$/.test(d.backzeit)?d.backzeit:standardBackzeit()}}
+ return{v:4,rezepte:rez,aktiv,entwurf:norm(Object.assign({},basis,{id:aktiv,name:rez.find(r=>r.id===aktiv).name})),theme:d.theme==='light'?'light':'dark',backzeit:/^\d{4}-\d\d-\d\dT\d\d:\d\d$/.test(d.backzeit)?d.backzeit:standardBackzeit()}}
 function sichern(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('Speichern fehlgeschlagen ('+((e&&e.name)||'Fehler')+')')}}
 const aktivRez=()=>S.rezepte.find(r=>r.id===S.aktiv);
 const geaendert=()=>{const a=aktivRez();return !a||FELDER.some(k=>a[k]!==S.entwurf[k])};
@@ -266,12 +266,13 @@ function hefeHtml(){const e=S.entwurf,r=rechnen(e);
  :'<div class="hefe"><div><b>'+(e.hefeManuell!=null?'Hefe (manuell)':'Berechnete Hefe')+'<span>'+nff(2).format(r.hp)+' %</span></b><small>'+(e.hefeManuell!=null?'<button class="link" data-act="hefeAuto">Zurück auf automatisch</button>':'automatisch aus der Gare-Zeit berechnet')+'</small></div><button class="icbtn s" data-act="hefeEdit" aria-label="Hefe-Prozent manuell ändern">'+ic('pencil')+'</button></div>';
  }
 function zutHtml(){const e=S.entwurf,r=rechnen(e),art=e.hefeart==='trocken'?'Trockenhefe':'Frischhefe';
+ const teil=(b,a,c,d)=>b>0?' · '+nfm(d).format(a)+' g in die Biga'+(c>0.005?', '+nfm(d).format(c)+' g beim Kneten':''):'';
  const z=(c,n,sub,w,d)=>'<div class="zut"><i class="d" style="background:var(--'+c+')"></i><div><b>'+n+'</b><small>'+sub+'</small></div><div class="gr"><strong>'+nff(d).format(w)+'</strong> g</div></div>';
  return '<h2>Zutaten <span class="ges">Gesamt: '+nfm(0).format(r.gesamt)+' g</span></h2>'
- +z('mehl','Mehl <small>(Pizzamehl Type 00)</small>','Basis (100 %)',r.mehl,0)
- +z('wasser','Wasser <small>(kalt)</small>','Hydration '+nfm(1).format(e.hydration)+' %'+(e.biga>0?' · '+nfm(0).format(r.biga)+' g in die Biga, '+nfm(0).format(r.wasser-r.biga)+' g beim Kneten':''),r.wasser,0)
+ +z('mehl','Mehl <small>(Pizzamehl Type 00)</small>','Basis (100 %)'+teil(e.biga,r.bigaM,r.mehl-r.bigaM,0),r.mehl,0)
+ +z('wasser','Wasser <small>(kalt)</small>','Hydration '+nfm(1).format(e.hydration)+' %'+teil(e.biga,r.bigaW,r.wasser-r.bigaW,0),r.wasser,0)
  +z('salz','Salz <small>(Meersalz)</small>',nfm(1).format(e.salz)+' %',r.salz,1)
- +z('hefe',art,nff(2).format(r.hp)+' % · '+nfm(1).format(kuehl(e))+' h bei 5 °C',r.hefe,r.hefe<1?2:1)}
+ +z('hefe',art,nff(2).format(r.hp)+' % · '+nfm(1).format(kuehl(e))+' h bei 5 °C'+teil(e.biga,r.bigaH,r.hefe-r.bigaH,2),r.hefe,r.hefe<1?2:1)}
 function schritteHtml(){const e=S.entwurf,zl=e.schritte.split('\n').map(s=>s.trim()).filter(Boolean);
  return '<button class="acc" data-act="schritteAuf" aria-expanded="'+ui.schritteAuf+'">'+ic('list')+'Zubereitungsschritte<span class="cnt">'+zl.length+(zl.length===1?' Schritt':' Schritte')+'</span>'+ic('chev')+'</button>'
  +(ui.schritteAuf?(ui.schritteEdit
@@ -281,14 +282,14 @@ function vRechner(){const e=S.entwurf;
  return '<header class="top rtop"><a class="icbtn" href="#start" aria-label="Zurück zur Startseite">'+ic('back')+'</a><h1>Pizza-Rechner</h1><button class="icbtn" data-act="speichern" aria-label="Rezept speichern">'+ic('mark')+'<i class="dot" id="dirty"'+(geaendert()?'':' hidden')+'></i></button></header>'
  +'<div class="recbar"><label class="recsel"><small>Aktives Rezept</small><select id="recSel">'+S.rezepte.map(r=>'<option value="'+esc(r.id)+'"'+(r.id===S.aktiv?' selected':'')+'>'+esc(r.name)+'</option>').join('')+'</select></label><button class="btn3" data-act="kopie">'+ic('copy')+'Kopie erstellen</button></div>'
  +'<section class="card"><h2>Teig-Parameter</h2>'
- +step('pizzen','Pizzen','Anzahl Teiglinge','')+step('gewicht','Gewicht je Teigling','pro Kugel','Gramm')+step('hydration','Hydration','Wasser auf Mehl','Prozent')+step('salz','Salz','auf Mehl','% auf Mehl')+step('biga','Biga','im Kühlschrank vor dem Kneten, 0 = ohne','Stunden')+step('stock','Stockgare','vor dem Formen','Stunden')+step('stunden','Gare im Kühlschrank','bei 5 °C','Stunden')+step('stueck','Stückgare','nach dem Kühlschrank','Stunden')
+ +step('pizzen','Pizzen','Anzahl Teiglinge','')+step('gewicht','Gewicht je Teigling','pro Kugel','Gramm')+step('hydration','Hydration','Wasser auf Mehl','Prozent')+step('salz','Salz','auf Mehl','% auf Mehl')+step('biga','Biga','im Kühlschrank vor dem Kneten, 0 = ohne','Stunden')+'<div id="bigabox"'+(e.biga>0?'':' hidden')+'>'+step('bigaMehl','Mehl in der Biga','Anteil vom Gesamtmehl','% vom Mehl')+step('bigaWasser','Wasser in der Biga','bezogen auf Biga-Mehl','% auf Biga')+step('bigaHefe','Hefe in der Biga','Anteil der Hefe','% der Hefe')+'</div>'+step('stock','Stockgare','vor dem Formen','Stunden')+step('stunden','Gare im Kühlschrank','bei 5 °C','Stunden')+step('stueck','Stückgare','nach dem Kühlschrank','Stunden')
  +'<div class="seg" role="radiogroup" aria-label="Hefeart"><button role="radio" data-act="art" data-v="frisch" class="'+(e.hefeart==='frisch'?'on':'')+'" aria-checked="'+(e.hefeart==='frisch')+'">Frischhefe</button><button role="radio" data-act="art" data-v="trocken" class="'+(e.hefeart==='trocken'?'on':'')+'" aria-checked="'+(e.hefeart==='trocken')+'">Trockenhefe</button></div>'
  +'<div id="hefebox">'+hefeHtml()+'</div></section>'
  +'<section class="card" id="zut">'+zutHtml()+'</section>'
  +'<section class="card" id="schr">'+schritteHtml()+'</section>'
  +'<a class="btn" href="#zeitplan">'+ic('clock')+'Zeitplan erstellen</a><button class="btn2" data-act="speichern">'+ic('mark')+'Rezept speichern</button>'}
 function patchRechner(){const e=S.entwurf;document.querySelectorAll('#app input[data-f]').forEach(i=>{if(document.activeElement!==i)i.value=nfm(SP[i.dataset.f][3]).format(e[i.dataset.f])});
- $('#hefebox').innerHTML=hefeHtml();$('#zut').innerHTML=zutHtml();document.querySelectorAll('[data-act=art]').forEach(b=>{const on=b.dataset.v===e.hefeart;b.classList.toggle('on',on);b.setAttribute('aria-checked',on)});dirtyDot()}
+ $('#bigabox').hidden=!(e.biga>0);$('#hefebox').innerHTML=hefeHtml();$('#zut').innerHTML=zutHtml();document.querySelectorAll('[data-act=art]').forEach(b=>{const on=b.dataset.v===e.hefeart;b.classList.toggle('on',on);b.setAttribute('aria-checked',on)});dirtyDot()}
 function dirtyDot(){const d=$('#dirty');if(d)d.hidden=!geaendert()}
 
 function vRezepte(){const n=S.rezepte.length;
@@ -301,11 +302,11 @@ function vRezepte(){const n=S.rezepte.length;
 function tlHtml(){const e=S.entwurf,bm=new Date(S.backzeit).getTime();if(!isFinite(bm))return '';const z=zeitplan(e,bm),r=rechnen(e);
  const t=(ms,cls,tit,txt)=>{const d=new Date(ms);return '<li class="st '+cls+'"><div class="t">'+WT[d.getDay()]+' · '+p2(d.getHours())+':'+p2(d.getMinutes())+'<small>'+p2(d.getDate())+'.'+p2(d.getMonth()+1)+'.</small></div><div class="l"></div><div class="c"><b>'+tit+'</b><small>'+esc(txt)+'</small></div></li>'};
  const stockTxt=e.stock>0?', danach '+nfm(1).format(e.stock)+' Std. Stockgare bei Raumtemperatur':'',ko=' Kneten, bis der Teig höchstens 24 °C hat (kaltes Wasser)';
- return (e.biga>0?t(z.biga,'','Biga ansetzen','Mehl, Hefe und '+nfm(0).format(r.biga)+' g kaltes Wasser verschütteln, '+nfm(1).format(e.biga)+' Std. im Kühlschrank'):'')
- +t(z.kneten,'','Teig kneten',(e.biga>0?'Biga, '+nfm(0).format(r.wasser-r.biga)+' g Wasser und Salz.':'Zutaten laut Rezept.')+ko+(e.biga>0?'; zu einer Kugel schleifen':'')+stockTxt)
+ return (e.biga>0?t(z.biga,'','Biga ansetzen',nfm(0).format(r.bigaM)+' g Mehl, '+nfm(0).format(r.bigaW)+' g kaltes Wasser, '+nfm(2).format(r.bigaH)+' g Hefe verrühren, '+nfm(1).format(e.biga)+' Std. im Kühlschrank'):'')
+ +t(z.kneten,'','Teig kneten',(e.biga>0?'Biga'+(r.mehl-r.bigaM>0.5?', '+nfm(0).format(r.mehl-r.bigaM)+' g Mehl':'')+', '+nfm(0).format(r.wasser-r.bigaW)+' g Wasser'+(r.hefe-r.bigaH>0.005?', '+nfm(2).format(r.hefe-r.bigaH)+' g Hefe':'')+' und Salz.':'Zutaten laut Rezept.')+ko+(e.biga>0&&e.stunden>0?'; zu einer Kugel schleifen':'')+stockTxt)
  +(e.biga>0?'':t(z.formen,'','Teiglinge formen',e.pizzen+' Teiglinge à '+nfm(1).format(e.gewicht)+' g, abdecken und in den Kühlschrank (5 °C)'))
- +'<li class="kb"><span>'+ic('snow')+nfm(1).format(e.stunden)+' Std. im Kühlschrank</span></li>'
- +t(z.raus,'','Aus dem Kühlschrank',(e.biga>0?'Teig in '+e.pizzen+' Teiglinge à '+nfm(1).format(e.gewicht)+' g teilen und abdecken, ':'')+nfm(1).format(e.stueck)+' Std. Stückgare bei Raumtemperatur')
+ +(e.stunden>0?'<li class="kb"><span>'+ic('snow')+nfm(1).format(e.stunden)+' Std. im Kühlschrank</span></li>':'')
+ +t(z.raus,'',e.stunden>0?'Aus dem Kühlschrank':'Teig teilen',(e.biga>0?'Teig in '+e.pizzen+' Teiglinge à '+nfm(1).format(e.gewicht)+' g teilen und abdecken, ':'')+nfm(1).format(e.stueck)+' Std. Stückgare bei Raumtemperatur')
  +t(z.backen,'end','Pizza backen','Ofen vorheizen, Teiglinge ausziehen und backen')
  +((e.biga>0?z.biga:z.kneten)<Date.now()?'<li class="warn" style="margin-top:6px">Der Start wäre schon vorbei. Wähle eine spätere Backzeit.</li>':'')}
 function vZeitplan(){const e=S.entwurf;
