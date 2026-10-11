@@ -181,8 +181,10 @@ dialog input[hidden]{display:none}
 // <rechnen>
 const HEFE_REF=0.25,HEFE_REF_H=46;
 function hefeAuto(stunden,art){const f=HEFE_REF*HEFE_REF_H/Math.max(stunden,1);return art==='trocken'?f/3:f}
-function rechnen(r){const hp=r.hefeManuell!=null?r.hefeManuell:hefeAuto(r.stunden,r.hefeart);const gesamt=r.pizzen*r.gewicht;const mehl=gesamt/(1+(r.hydration+r.salz+hp)/100);return{hp,gesamt,mehl,wasser:mehl*r.hydration/100,salz:mehl*r.salz/100,hefe:mehl*hp/100}}
-function zeitplan(r,backMs){const h=3600e3;const raus=backMs-r.stueck*h;const formen=raus-r.stunden*h;return{kneten:formen-r.stock*h,formen,raus,backen:backMs}}
+const BIGA_WASSER=0.7;
+const kuehl=r=>r.stunden+r.biga;
+function rechnen(r){const hp=r.hefeManuell!=null?r.hefeManuell:hefeAuto(kuehl(r),r.hefeart);const gesamt=r.pizzen*r.gewicht;const mehl=gesamt/(1+(r.hydration+r.salz+hp)/100);const wasser=mehl*r.hydration/100;return{hp,gesamt,mehl,wasser,biga:wasser*BIGA_WASSER,salz:mehl*r.salz/100,hefe:mehl*hp/100}}
+function zeitplan(r,backMs){const h=3600e3;const raus=backMs-r.stueck*h;const formen=raus-r.stunden*h;const kneten=formen-r.stock*h;return{biga:kneten-r.biga*h,kneten,formen,raus,backen:backMs}}
 // </rechnen>
 
 const $=s=>document.querySelector(s);
@@ -215,22 +217,24 @@ list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
 arrow:'<path d="M5 12h14M12 5l7 7-7 7"/>',info:'<circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>'};
 const ic=n=>'<svg class="i" viewBox="0 0 24 24" aria-hidden="true">'+P[n]+'</svg>';
 
-const GRUND={id:'grundrezept',name:'Grundrezept',pizzen:6,gewicht:280,hydration:65,salz:3,stock:1,stunden:46,stueck:2,hefeart:'frisch',hefeManuell:null,schritte:'',geaendertAm:0};
-const SP={pizzen:[1,1,99,0],gewicht:[1,50,600,1],hydration:[1,40,100,1],salz:[0.1,0,6,1],stock:[0.5,0,12,1],stunden:[1,1,120,1],stueck:[0.5,0,12,1]};
-const FELDER=['pizzen','gewicht','hydration','salz','stock','stunden','stueck','hefeart','hefeManuell','schritte'];
+const GRUND={id:'grundrezept',name:'Grundrezept',pizzen:6,gewicht:280,hydration:65,salz:3,biga:0,stock:1,stunden:46,stueck:2,hefeart:'frisch',hefeManuell:null,schritte:'',geaendertAm:0};
+const BIGA={id:'biga100',name:'Biga 100 %',pizzen:3,gewicht:286,hydration:68,salz:3.2,biga:24,stock:0,stunden:20,stueck:6,hefeart:'frisch',hefeManuell:0.25,geaendertAm:0,schritte:['Mehl in einen Behälter mit Deckel geben.','Frischhefe in 70 % des kalten Wassers lösen und über das Mehl verteilen.','Deckel drauf und in alle Richtungen schütteln.','Biga abgedeckt 24 Std. in den Kühlschrank.','Restliches Wasser bereitstellen: einen Schluck in die Rührschüssel, die Biga dazu, noch einen Schluck Wasser darüber.','Kneten und das Salz dazugeben, bis der Teig höchstens 24 °C hat (deshalb immer kaltes Wasser). Kleine Klumpen lösen sich in der Gare.','Teig zu einer Kugel schleifen und 20 Std. in den Kühlschrank.','6 Std. vor dem Backen portionieren, zu Teiglingen schleifen und abgedeckt ruhen lassen.','Pizza ausziehen, belegen und backen.'].join('\n')};
+const SP={pizzen:[1,1,99,0],gewicht:[1,50,600,1],hydration:[1,40,100,1],salz:[0.1,0,6,1],biga:[1,0,72,1],stock:[0.5,0,12,1],stunden:[1,1,120,1],stueck:[0.5,0,12,1]};
+const FELDER=['pizzen','gewicht','hydration','salz','biga','stock','stunden','stueck','hefeart','hefeManuell','schritte'];
 function zahl(v,def,min,max){v=Number(v);return isFinite(v)?Math.min(max,Math.max(min,v)):def}
-function norm(r){r=r||{};return{id:/^[\w-]{1,40}$/.test(r.id)?r.id:neueId(),name:String(r.name||'Rezept').slice(0,60),pizzen:Math.round(zahl(r.pizzen,6,1,99)),gewicht:zahl(r.gewicht,292,50,600),hydration:zahl(r.hydration,68,40,100),salz:zahl(r.salz,3,0,6),stock:zahl(r.stock,0.5,0,12),stunden:zahl(r.stunden,46,1,120),stueck:zahl(r.stueck,1,0,12),hefeart:r.hefeart==='trocken'?'trocken':'frisch',hefeManuell:r.hefeManuell==null?null:zahl(r.hefeManuell,0.25,0,5),schritte:String(r.schritte||'').slice(0,4000),geaendertAm:Number(r.geaendertAm)||0}}
+function norm(r){r=r||{};return{id:/^[\w-]{1,40}$/.test(r.id)?r.id:neueId(),name:String(r.name||'Rezept').slice(0,60),pizzen:Math.round(zahl(r.pizzen,6,1,99)),gewicht:zahl(r.gewicht,292,50,600),hydration:zahl(r.hydration,68,40,100),salz:zahl(r.salz,3,0,6),biga:zahl(r.biga,0,0,72),stock:zahl(r.stock,0.5,0,12),stunden:zahl(r.stunden,46,1,120),stueck:zahl(r.stueck,1,0,12),hefeart:r.hefeart==='trocken'?'trocken':'frisch',hefeManuell:r.hefeManuell==null?null:zahl(r.hefeManuell,0.25,0,5),schritte:String(r.schritte||'').slice(0,4000),geaendertAm:Number(r.geaendertAm)||0}}
 
 const KEY='glut.v1';
 let S,ui={hefeEdit:false,schritteAuf:true,schritteEdit:false,menuId:null},letzte='';
 function laden(){let d=null;try{d=JSON.parse(localStorage.getItem(KEY))}catch(e){}
  d=d&&typeof d==='object'?d:{};
- if(d.v!==2&&Array.isArray(d.rezepte)){const i=d.rezepte.findIndex(r=>r&&r.id==='grundrezept'&&!r.geaendertAm);
+ if(!(d.v>=2)&&Array.isArray(d.rezepte)){const i=d.rezepte.findIndex(r=>r&&r.id==='grundrezept'&&!r.geaendertAm);
   if(i>=0){const e=d.entwurf;if(!e||e.id!=='grundrezept'||FELDER.every(k=>e[k]===d.rezepte[i][k]))delete d.entwurf;d.rezepte[i]=GRUND}}
- const rez=(Array.isArray(d.rezepte)&&d.rezepte.length?d.rezepte:[GRUND]).map(norm);
+ if(!(d.v>=3)&&Array.isArray(d.rezepte)&&!d.rezepte.some(r=>r&&r.id===BIGA.id))d.rezepte.push(BIGA);
+ const rez=(Array.isArray(d.rezepte)&&d.rezepte.length?d.rezepte:[GRUND,BIGA]).map(norm);
  const aktiv=rez.some(r=>r.id===d.aktiv)?d.aktiv:rez[0].id;
  const basis=d.entwurf&&d.entwurf.id===aktiv?d.entwurf:rez.find(r=>r.id===aktiv);
- return{v:2,rezepte:rez,aktiv,entwurf:norm(Object.assign({},basis,{id:aktiv,name:rez.find(r=>r.id===aktiv).name})),theme:d.theme==='light'?'light':'dark',backzeit:/^\d{4}-\d\d-\d\dT\d\d:\d\d$/.test(d.backzeit)?d.backzeit:standardBackzeit()}}
+ return{v:3,rezepte:rez,aktiv,entwurf:norm(Object.assign({},basis,{id:aktiv,name:rez.find(r=>r.id===aktiv).name})),theme:d.theme==='light'?'light':'dark',backzeit:/^\d{4}-\d\d-\d\dT\d\d:\d\d$/.test(d.backzeit)?d.backzeit:standardBackzeit()}}
 function sichern(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('Speichern fehlgeschlagen ('+((e&&e.name)||'Fehler')+')')}}
 const aktivRez=()=>S.rezepte.find(r=>r.id===S.aktiv);
 const geaendert=()=>{const a=aktivRez();return !a||FELDER.some(k=>a[k]!==S.entwurf[k])};
@@ -252,7 +256,7 @@ function vStart(){const h=new Date().getHours();const gruss=h<5?'Gute Nacht':h<1
  +'<a class="kat on" href="#rechner" style="--bild:url(img/pizza.jpg)"><span class="tag" aria-hidden="true">'+ic('arrow')+'</span><b>Pizza</b><small>Teig, Gare, perfekter Rand</small></a>'
  +sperre('Grillen','Glut, Marinaden, Temperaturen','grillen')+sperre('Kochen','Alltag und Lieblingsgerichte','kochen')
  +'<div class="rowhead"><h2 class="sec">Zuletzt gebacken</h2><a class="link" href="#rezepte">Alle ansehen ›</a></div>'
- +'<div class="hs">'+zul.map(r=>'<button class="mini" data-act="oeffne" data-id="'+esc(r.id)+'">'+hydr(r)+'<b>'+esc(r.name)+'</b><span class="m"><span>'+meta(r)+'</span><span>'+nfm(1).format(r.stunden)+' h</span></span></button>').join('')+'</div>'}
+ +'<div class="hs">'+zul.map(r=>'<button class="mini" data-act="oeffne" data-id="'+esc(r.id)+'">'+hydr(r)+'<b>'+esc(r.name)+'</b><span class="m"><span>'+meta(r)+'</span><span>'+nfm(1).format(kuehl(r))+' h</span></span></button>').join('')+'</div>'}
 
 function step(f,label,sub,unit){const e=S.entwurf,d=SP[f][3];
  return '<div class="row"><div class="lab"><b>'+label+'</b><small>'+sub+'</small></div><div class="stp"><button class="rb" data-act="step" data-f="'+f+'" data-d="-1" aria-label="'+label+' verringern">'+ic('minus')+'</button><label class="val"><input inputmode="decimal" data-f="'+f+'" value="'+nfm(d).format(e[f])+'" aria-label="'+label+'"><small>'+unit+'</small></label><button class="rb p" data-act="step" data-f="'+f+'" data-d="1" aria-label="'+label+' erhöhen">'+ic('plus')+'</button></div></div>'}
@@ -265,9 +269,9 @@ function zutHtml(){const e=S.entwurf,r=rechnen(e),art=e.hefeart==='trocken'?'Tro
  const z=(c,n,sub,w,d)=>'<div class="zut"><i class="d" style="background:var(--'+c+')"></i><div><b>'+n+'</b><small>'+sub+'</small></div><div class="gr"><strong>'+nff(d).format(w)+'</strong> g</div></div>';
  return '<h2>Zutaten <span class="ges">Gesamt: '+nfm(0).format(r.gesamt)+' g</span></h2>'
  +z('mehl','Mehl <small>(Pizzamehl Type 00)</small>','Basis (100 %)',r.mehl,0)
- +z('wasser','Wasser <small>(kalt)</small>','Hydration '+nfm(1).format(e.hydration)+' %',r.wasser,0)
+ +z('wasser','Wasser <small>(kalt)</small>','Hydration '+nfm(1).format(e.hydration)+' %'+(e.biga>0?' · '+nfm(0).format(r.biga)+' g in die Biga, '+nfm(0).format(r.wasser-r.biga)+' g beim Kneten':''),r.wasser,0)
  +z('salz','Salz <small>(Meersalz)</small>',nfm(1).format(e.salz)+' %',r.salz,1)
- +z('hefe',art,nff(2).format(r.hp)+' % · '+nfm(1).format(e.stunden)+' h bei 5 °C',r.hefe,r.hefe<1?2:1)}
+ +z('hefe',art,nff(2).format(r.hp)+' % · '+nfm(1).format(kuehl(e))+' h bei 5 °C',r.hefe,r.hefe<1?2:1)}
 function schritteHtml(){const e=S.entwurf,zl=e.schritte.split('\n').map(s=>s.trim()).filter(Boolean);
  return '<button class="acc" data-act="schritteAuf" aria-expanded="'+ui.schritteAuf+'">'+ic('list')+'Zubereitungsschritte<span class="cnt">'+zl.length+(zl.length===1?' Schritt':' Schritte')+'</span>'+ic('chev')+'</button>'
  +(ui.schritteAuf?(ui.schritteEdit
@@ -277,7 +281,7 @@ function vRechner(){const e=S.entwurf;
  return '<header class="top rtop"><a class="icbtn" href="#start" aria-label="Zurück zur Startseite">'+ic('back')+'</a><h1>Pizza-Rechner</h1><button class="icbtn" data-act="speichern" aria-label="Rezept speichern">'+ic('mark')+'<i class="dot" id="dirty"'+(geaendert()?'':' hidden')+'></i></button></header>'
  +'<div class="recbar"><label class="recsel"><small>Aktives Rezept</small><select id="recSel">'+S.rezepte.map(r=>'<option value="'+esc(r.id)+'"'+(r.id===S.aktiv?' selected':'')+'>'+esc(r.name)+'</option>').join('')+'</select></label><button class="btn3" data-act="kopie">'+ic('copy')+'Kopie erstellen</button></div>'
  +'<section class="card"><h2>Teig-Parameter</h2>'
- +step('pizzen','Pizzen','Anzahl Teiglinge','')+step('gewicht','Gewicht je Teigling','pro Kugel','Gramm')+step('hydration','Hydration','Wasser auf Mehl','Prozent')+step('salz','Salz','auf Mehl','% auf Mehl')+step('stock','Stockgare','vor dem Formen','Stunden')+step('stunden','Gare im Kühlschrank','bei 5 °C','Stunden')+step('stueck','Stückgare','nach dem Kühlschrank','Stunden')
+ +step('pizzen','Pizzen','Anzahl Teiglinge','')+step('gewicht','Gewicht je Teigling','pro Kugel','Gramm')+step('hydration','Hydration','Wasser auf Mehl','Prozent')+step('salz','Salz','auf Mehl','% auf Mehl')+step('biga','Biga','im Kühlschrank vor dem Kneten, 0 = ohne','Stunden')+step('stock','Stockgare','vor dem Formen','Stunden')+step('stunden','Gare im Kühlschrank','bei 5 °C','Stunden')+step('stueck','Stückgare','nach dem Kühlschrank','Stunden')
  +'<div class="seg" role="radiogroup" aria-label="Hefeart"><button role="radio" data-act="art" data-v="frisch" class="'+(e.hefeart==='frisch'?'on':'')+'" aria-checked="'+(e.hefeart==='frisch')+'">Frischhefe</button><button role="radio" data-act="art" data-v="trocken" class="'+(e.hefeart==='trocken'?'on':'')+'" aria-checked="'+(e.hefeart==='trocken')+'">Trockenhefe</button></div>'
  +'<div id="hefebox">'+hefeHtml()+'</div></section>'
  +'<section class="card" id="zut">'+zutHtml()+'</section>'
@@ -291,20 +295,22 @@ function vRezepte(){const n=S.rezepte.length;
  const chip=(t,i)=>'<span class="chip">'+(i?ic(i)+t+'<em>Bald</em>':t)+'</span>';
  return kopf()+'<div class="titel"><div><h1>Rezepte</h1><small>'+n+(n===1?' Teigführung':' Teigführungen')+' gesichert</small></div><button class="fab" data-act="neu" aria-label="Neues Rezept">'+ic('plus')+'</button></div>'
  +'<div class="chips"><span class="chip on">Pizza</span>'+chip('Grillen','lock')+chip('Kochen','lock')+'</div>'
- +S.rezepte.map(r=>'<article class="rez"><button class="main" data-act="oeffne" data-id="'+esc(r.id)+'"><img src="img/pizza.jpg" alt=""><span>'+hydr(r)+'<b>'+esc(r.name)+'</b><small>'+meta(r)+' · '+nfm(1).format(r.stunden)+' h Kühlschrank</small></span></button><button class="icbtn s" data-act="menue" data-id="'+esc(r.id)+'" aria-label="Aktionen für '+esc(r.name)+'">'+ic('more')+'</button></article>').join('')
+ +S.rezepte.map(r=>'<article class="rez"><button class="main" data-act="oeffne" data-id="'+esc(r.id)+'"><img src="img/pizza.jpg" alt=""><span>'+hydr(r)+'<b>'+esc(r.name)+'</b><small>'+meta(r)+' · '+nfm(1).format(kuehl(r))+' h Kühlschrank</small></span></button><button class="icbtn s" data-act="menue" data-id="'+esc(r.id)+'" aria-label="Aktionen für '+esc(r.name)+'">'+ic('more')+'</button></article>').join('')
  +'<section class="card sich"><h2>'+ic('shield')+' Sicherung</h2><p>Deine Rezepte liegen nur auf diesem iPhone.</p><button data-act="export">'+ic('up')+'Sicherung exportieren</button><button data-act="import">'+ic('down')+'Sicherung einlesen</button></section>'}
 
-function tlHtml(){const e=S.entwurf,bm=new Date(S.backzeit).getTime();if(!isFinite(bm))return '';const z=zeitplan(e,bm);
+function tlHtml(){const e=S.entwurf,bm=new Date(S.backzeit).getTime();if(!isFinite(bm))return '';const z=zeitplan(e,bm),r=rechnen(e);
  const t=(ms,cls,tit,txt)=>{const d=new Date(ms);return '<li class="st '+cls+'"><div class="t">'+WT[d.getDay()]+' · '+p2(d.getHours())+':'+p2(d.getMinutes())+'<small>'+p2(d.getDate())+'.'+p2(d.getMonth()+1)+'.</small></div><div class="l"></div><div class="c"><b>'+tit+'</b><small>'+esc(txt)+'</small></div></li>'};
- return t(z.kneten,'','Teig kneten','Zutaten laut Rezept verarbeiten, danach '+nfm(1).format(e.stock)+' Std. Stockgare bei Raumtemperatur')
- +t(z.formen,'','Teiglinge formen',e.pizzen+' Teiglinge à '+nfm(1).format(e.gewicht)+' g, abdecken und in den Kühlschrank (5 °C)')
+ const stockTxt=e.stock>0?', danach '+nfm(1).format(e.stock)+' Std. Stockgare bei Raumtemperatur':'',ko=' Kneten, bis der Teig höchstens 24 °C hat (kaltes Wasser)';
+ return (e.biga>0?t(z.biga,'','Biga ansetzen','Mehl, Hefe und '+nfm(0).format(r.biga)+' g kaltes Wasser verschütteln, '+nfm(1).format(e.biga)+' Std. im Kühlschrank'):'')
+ +t(z.kneten,'','Teig kneten',(e.biga>0?'Biga, '+nfm(0).format(r.wasser-r.biga)+' g Wasser und Salz.':'Zutaten laut Rezept.')+ko+(e.biga>0?'; zu einer Kugel schleifen':'')+stockTxt)
+ +(e.biga>0?'':t(z.formen,'','Teiglinge formen',e.pizzen+' Teiglinge à '+nfm(1).format(e.gewicht)+' g, abdecken und in den Kühlschrank (5 °C)'))
  +'<li class="kb"><span>'+ic('snow')+nfm(1).format(e.stunden)+' Std. im Kühlschrank</span></li>'
- +t(z.raus,'','Aus dem Kühlschrank',nfm(1).format(e.stueck)+' Std. Stückgare bei Raumtemperatur')
+ +t(z.raus,'','Aus dem Kühlschrank',(e.biga>0?'Teig in '+e.pizzen+' Teiglinge à '+nfm(1).format(e.gewicht)+' g teilen und abdecken, ':'')+nfm(1).format(e.stueck)+' Std. Stückgare bei Raumtemperatur')
  +t(z.backen,'end','Pizza backen','Ofen vorheizen, Teiglinge ausziehen und backen')
- +(z.kneten<Date.now()?'<li class="warn" style="margin-top:6px">Der Start wäre schon vorbei. Wähle eine spätere Backzeit.</li>':'')}
+ +((e.biga>0?z.biga:z.kneten)<Date.now()?'<li class="warn" style="margin-top:6px">Der Start wäre schon vorbei. Wähle eine spätere Backzeit.</li>':'')}
 function vZeitplan(){const e=S.entwurf;
  return kopf()+'<h1>Zeitplan</h1><p class="lead" style="margin-bottom:16px">Rückwärts von deiner Backzeit</p>'
- +'<section class="card zeit"><label class="zrow"><span class="ico">'+ic('slice')+'</span><span style="flex:1;min-width:0"><small>Rezept</small><select id="zSel">'+S.rezepte.map(r=>'<option value="'+esc(r.id)+'"'+(r.id===S.aktiv?' selected':'')+'>'+esc(r.name)+' · '+nfm(1).format(r.id===S.aktiv?e.stunden:r.stunden)+' h Kühlschrank</option>').join('')+'</select></span></label>'
+ +'<section class="card zeit"><label class="zrow"><span class="ico">'+ic('slice')+'</span><span style="flex:1;min-width:0"><small>Rezept</small><select id="zSel">'+S.rezepte.map(r=>'<option value="'+esc(r.id)+'"'+(r.id===S.aktiv?' selected':'')+'>'+esc(r.name)+' · '+nfm(1).format(kuehl(r.id===S.aktiv?e:r))+' h Kühlschrank</option>').join('')+'</select></span></label>'
  +'<label class="zrow"><span class="ico">'+ic('clock')+'</span><span style="flex:1;min-width:0"><small>Gebacken wird am</small><input type="datetime-local" id="bz" value="'+esc(S.backzeit)+'"></span></label></section>'
  +'<ul class="tl" id="tl" style="padding:0">'+tlHtml()+'</ul>'
  +'<div class="hinweis">'+ic('info')+'<span>Die Zeiten rechnen sich neu, sobald du Backzeit oder Rezept änderst.</span></div>'}
