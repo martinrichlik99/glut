@@ -220,6 +220,15 @@ const GRUND={id:'grundrezept',name:'Grundrezept',pizzen:6,gewicht:280,hydration:
 const BIGA={id:'biga100',name:'Biga 100 %',pizzen:3,gewicht:286,hydration:68,salz:3.2,biga:24,bigaMehl:100,bigaWasser:47.6,bigaHefe:100,stock:0,stunden:20,stueck:6,hefeart:'frisch',hefeManuell:0.25,geaendertAm:0,schritte:['Mehl in einen Behälter mit Deckel geben.','Frischhefe in 70 % des kalten Wassers lösen und über das Mehl verteilen.','Deckel drauf und in alle Richtungen schütteln.','Biga abgedeckt 24 Std. in den Kühlschrank.','Restliches Wasser bereitstellen: einen Schluck in die Rührschüssel, die Biga dazu, noch einen Schluck Wasser darüber.','Kneten und das Salz dazugeben, bis der Teig höchstens 24 °C hat (deshalb immer kaltes Wasser). Kleine Klumpen lösen sich in der Gare.','Teig zu einer Kugel schleifen und 20 Std. in den Kühlschrank.','6 Std. vor dem Backen portionieren, zu Teiglingen schleifen und abgedeckt ruhen lassen.','Pizza ausziehen, belegen und backen.'].join('\n')};
 const BIGA2={id:'biga50',name:'Biga mit Vorteig',pizzen:3,gewicht:281,hydration:65,salz:2.8,biga:14,bigaMehl:50,bigaWasser:44.8,bigaHefe:80,stock:0,stunden:0,stueck:5,hefeart:'frisch',hefeManuell:1,geaendertAm:0,schritte:['Biga: Mehl in eine Schüssel, die Hefe im kalten Wasser lösen, zum Mehl geben und grob verrühren.','Kneten, bis ein fester, trockener Teig entsteht.','In rustikale Stücke zupfen und in einer Dose verschließen.','1 Std. bei Raumtemperatur anspringen lassen, dann über Nacht in den Kühlschrank (12–16 Std.).','Hauptteig: Biga in Würfel schneiden, mit restlichem Mehl und Hefe in die Maschine geben.','Etwa die Hälfte des kalten Wassers dazu und kneten; sobald das Mehl das Wasser gebunden hat, das restliche Wasser und kurz darauf das Salz.','Kneten, bis der Teig geschmeidig ist (höchstens 24 °C).','Teig auf die Arbeitsplatte stürzen, dehnen und falten, zu einer Kugel schleifen und 15 Min. abgedeckt ruhen lassen.','In Teiglinge teilen, auf Spannung schleifen und 5 Std. abgedeckt bei Raumtemperatur ruhen lassen.','Luft in den Rand drücken, ausziehen, belegen und backen.'].join('\n')};
 const SP={pizzen:[1,1,99,0],gewicht:[1,50,600,1],hydration:[1,40,100,1],salz:[0.1,0,6,1],biga:[1,0,72,1],bigaMehl:[5,10,100,0],bigaWasser:[1,30,70,1],bigaHefe:[5,0,100,0],stock:[0.5,0,12,1],stunden:[1,0,120,1],stueck:[0.5,0,12,1]};
+const GS={salz:[0.5,1],bigaMehl:[10,0],bigaWasser:[5,0],bigaHefe:[0.25,2]};
+const GW={salz:e=>rechnen(e).salz,bigaMehl:e=>rechnen(e).bigaM,bigaWasser:e=>rechnen(e).bigaW,bigaHefe:e=>rechnen(e).bigaH};
+const anz=f=>nfm(GS[f]?GS[f][1]:SP[f][3]).format(GS[f]?GW[f](S.entwurf):S.entwurf[f]);
+function setzeG(f,g){const e=S.entwurf,r=rechnen(e),[,mn,mx]=SP[f],ok=q=>Math.min(mx,Math.max(mn,q));
+ if(f==='salz'&&r.gesamt>g)e.salz=ok(100*g*(1+(e.hydration+r.hp)/100)/(r.gesamt-g));
+ else if(f==='bigaMehl')e.bigaMehl=ok(g/r.mehl*100);
+ else if(f==='bigaWasser'&&r.bigaM>0)e.bigaWasser=ok(g/r.bigaM*100);
+ else if(f==='bigaHefe'&&r.hefe>0)e.bigaHefe=ok(g/r.hefe*100);
+ sichern();patchRechner()}
 const FELDER=['pizzen','gewicht','hydration','salz','biga','bigaMehl','bigaWasser','bigaHefe','stock','stunden','stueck','hefeart','hefeManuell','schritte'];
 function zahl(v,def,min,max){v=Number(v);return isFinite(v)?Math.min(max,Math.max(min,v)):def}
 function norm(r){r=r||{};return{id:/^[\w-]{1,40}$/.test(r.id)?r.id:neueId(),name:String(r.name||'Rezept').slice(0,60),pizzen:Math.round(zahl(r.pizzen,6,1,99)),gewicht:zahl(r.gewicht,292,50,600),hydration:zahl(r.hydration,68,40,100),salz:zahl(r.salz,3,0,6),biga:zahl(r.biga,0,0,72),bigaMehl:zahl(r.bigaMehl,100,10,100),bigaWasser:zahl(r.bigaWasser,47.6,30,70),bigaHefe:zahl(r.bigaHefe,100,0,100),stock:zahl(r.stock,0.5,0,12),stunden:zahl(r.stunden,46,0,120),stueck:zahl(r.stueck,1,0,12),hefeart:r.hefeart==='trocken'?'trocken':'frisch',hefeManuell:r.hefeManuell==null?null:zahl(r.hefeManuell,0.25,0,5),schritte:String(r.schritte||'').slice(0,4000),geaendertAm:Number(r.geaendertAm)||0}}
@@ -258,12 +267,12 @@ function vStart(){const h=new Date().getHours();const gruss=h<5?'Gute Nacht':h<1
  +'<div class="rowhead"><h2 class="sec">Zuletzt gebacken</h2><a class="link" href="#rezepte">Alle ansehen ›</a></div>'
  +'<div class="hs">'+zul.map(r=>'<button class="mini" data-act="oeffne" data-id="'+esc(r.id)+'">'+hydr(r)+'<b>'+esc(r.name)+'</b><span class="m"><span>'+meta(r)+'</span><span>'+nfm(1).format(kuehl(r))+' h</span></span></button>').join('')+'</div>'}
 
-function step(f,label,sub,unit){const e=S.entwurf,d=SP[f][3];
- return '<div class="row"><div class="lab"><b>'+label+'</b><small>'+sub+'</small></div><div class="stp"><button class="rb" data-act="step" data-f="'+f+'" data-d="-1" aria-label="'+label+' verringern">'+ic('minus')+'</button><label class="val"><input inputmode="decimal" data-f="'+f+'" value="'+nfm(d).format(e[f])+'" aria-label="'+label+'"><small>'+unit+'</small></label><button class="rb p" data-act="step" data-f="'+f+'" data-d="1" aria-label="'+label+' erhöhen">'+ic('plus')+'</button></div></div>'}
+function step(f,label,sub,unit){
+ return '<div class="row"><div class="lab"><b>'+label+'</b><small>'+sub+'</small></div><div class="stp"><button class="rb" data-act="step" data-f="'+f+'" data-d="-1" aria-label="'+label+' verringern">'+ic('minus')+'</button><label class="val"><input inputmode="decimal" data-f="'+f+'" value="'+anz(f)+'" aria-label="'+label+'"><small>'+unit+'</small></label><button class="rb p" data-act="step" data-f="'+f+'" data-d="1" aria-label="'+label+' erhöhen">'+ic('plus')+'</button></div></div>'}
 function hefeHtml(){const e=S.entwurf,r=rechnen(e);
  return ui.hefeEdit
- ?'<div class="hefe"><div><b>Hefe in % vom Mehl</b><small>Enter zum Übernehmen</small></div><input id="hefeIn" inputmode="decimal" value="'+nfm(3).format(r.hp)+'" aria-label="Hefe in Prozent"></div>'
- :'<div class="hefe"><div><b>'+(e.hefeManuell!=null?'Hefe (manuell)':'Berechnete Hefe')+'<span>'+nff(2).format(r.hp)+' %</span></b><small>'+(e.hefeManuell!=null?'<button class="link" data-act="hefeAuto">Zurück auf automatisch</button>':'automatisch aus der Gare-Zeit berechnet')+'</small></div><button class="icbtn s" data-act="hefeEdit" aria-label="Hefe-Prozent manuell ändern">'+ic('pencil')+'</button></div>';
+ ?'<div class="hefe"><div><b>Hefe in Gramm</b><small>Enter zum Übernehmen</small></div><input id="hefeIn" inputmode="decimal" value="'+nfm(2).format(r.hefe)+'" aria-label="Hefe in Gramm"></div>'
+ :'<div class="hefe"><div><b>'+(e.hefeManuell!=null?'Hefe (manuell)':'Berechnete Hefe')+'<span>'+nff(2).format(r.hefe)+' g · '+nff(2).format(r.hp)+' %</span></b><small>'+(e.hefeManuell!=null?'<button class="link" data-act="hefeAuto">Zurück auf automatisch</button>':'automatisch aus der Gare-Zeit berechnet')+'</small></div><button class="icbtn s" data-act="hefeEdit" aria-label="Hefe-Prozent manuell ändern">'+ic('pencil')+'</button></div>';
  }
 function zutHtml(){const e=S.entwurf,r=rechnen(e),art=e.hefeart==='trocken'?'Trockenhefe':'Frischhefe';
  const teil=(b,a,c,d)=>b>0?' · '+nfm(d).format(a)+' g in die Biga'+(c>0.005?', '+nfm(d).format(c)+' g beim Kneten':''):'';
@@ -282,13 +291,13 @@ function vRechner(){const e=S.entwurf;
  return '<header class="top rtop"><a class="icbtn" href="#start" aria-label="Zurück zur Startseite">'+ic('back')+'</a><h1>Pizza-Rechner</h1><button class="icbtn" data-act="speichern" aria-label="Rezept speichern">'+ic('mark')+'<i class="dot" id="dirty"'+(geaendert()?'':' hidden')+'></i></button></header>'
  +'<div class="recbar"><label class="recsel"><small>Aktives Rezept</small><select id="recSel">'+S.rezepte.map(r=>'<option value="'+esc(r.id)+'"'+(r.id===S.aktiv?' selected':'')+'>'+esc(r.name)+'</option>').join('')+'</select></label><button class="btn3" data-act="kopie">'+ic('copy')+'Kopie erstellen</button></div>'
  +'<section class="card"><h2>Teig-Parameter</h2>'
- +step('pizzen','Pizzen','Anzahl Teiglinge','')+step('gewicht','Gewicht je Teigling','pro Kugel','Gramm')+step('hydration','Hydration','Wasser auf Mehl','Prozent')+step('salz','Salz','auf Mehl','% auf Mehl')+step('biga','Biga','im Kühlschrank vor dem Kneten, 0 = ohne','Stunden')+'<div id="bigabox"'+(e.biga>0?'':' hidden')+'>'+step('bigaMehl','Mehl in der Biga','Anteil vom Gesamtmehl','% vom Mehl')+step('bigaWasser','Wasser in der Biga','bezogen auf Biga-Mehl','% auf Biga')+step('bigaHefe','Hefe in der Biga','Anteil der Hefe','% der Hefe')+'</div>'+step('stock','Stockgare','vor dem Formen','Stunden')+step('stunden','Gare im Kühlschrank','bei 5 °C','Stunden')+step('stueck','Stückgare','nach dem Kühlschrank','Stunden')
+ +step('pizzen','Pizzen','Anzahl Teiglinge','')+step('gewicht','Gewicht je Teigling','pro Kugel','Gramm')+step('hydration','Hydration','Wasser auf Mehl','Prozent')+step('salz','Salz','für den ganzen Teig','Gramm')+step('biga','Biga','im Kühlschrank vor dem Kneten, 0 = ohne','Stunden')+'<div id="bigabox"'+(e.biga>0?'':' hidden')+'>'+step('bigaMehl','Mehl in der Biga','vom Gesamtmehl','Gramm')+step('bigaWasser','Wasser in der Biga','kaltes Wasser','Gramm')+step('bigaHefe','Hefe in der Biga','Teil der Gesamthefe','Gramm')+'</div>'+step('stock','Stockgare','vor dem Formen','Stunden')+step('stunden','Gare im Kühlschrank','bei 5 °C','Stunden')+step('stueck','Stückgare','nach dem Kühlschrank','Stunden')
  +'<div class="seg" role="radiogroup" aria-label="Hefeart"><button role="radio" data-act="art" data-v="frisch" class="'+(e.hefeart==='frisch'?'on':'')+'" aria-checked="'+(e.hefeart==='frisch')+'">Frischhefe</button><button role="radio" data-act="art" data-v="trocken" class="'+(e.hefeart==='trocken'?'on':'')+'" aria-checked="'+(e.hefeart==='trocken')+'">Trockenhefe</button></div>'
  +'<div id="hefebox">'+hefeHtml()+'</div></section>'
  +'<section class="card" id="zut">'+zutHtml()+'</section>'
  +'<section class="card" id="schr">'+schritteHtml()+'</section>'
  +'<a class="btn" href="#zeitplan">'+ic('clock')+'Zeitplan erstellen</a><button class="btn2" data-act="speichern">'+ic('mark')+'Rezept speichern</button>'}
-function patchRechner(){const e=S.entwurf;document.querySelectorAll('#app input[data-f]').forEach(i=>{if(document.activeElement!==i)i.value=nfm(SP[i.dataset.f][3]).format(e[i.dataset.f])});
+function patchRechner(){const e=S.entwurf;document.querySelectorAll('#app input[data-f]').forEach(i=>{if(document.activeElement!==i)i.value=anz(i.dataset.f)});
  $('#bigabox').hidden=!(e.biga>0);$('#hefebox').innerHTML=hefeHtml();$('#zut').innerHTML=zutHtml();document.querySelectorAll('[data-act=art]').forEach(b=>{const on=b.dataset.v===e.hefeart;b.classList.toggle('on',on);b.setAttribute('aria-checked',on)});dirtyDot()}
 function dirtyDot(){const d=$('#dirty');if(d)d.hidden=!geaendert()}
 
@@ -333,7 +342,7 @@ const parse=s=>parseFloat(String(s).replace(',','.'));
 
 const AKT={
  theme(){S.theme=S.theme==='dark'?'light':'dark';sichern();render()},
- step(b){const f=b.dataset.f;setze(f,klemme(f,S.entwurf[f]+Number(b.dataset.d)*SP[f][0]))},
+ step(b){const f=b.dataset.f,n=Number(b.dataset.d);if(GS[f])setzeG(f,+GW[f](S.entwurf).toFixed(GS[f][1])+n*GS[f][0]);else setze(f,klemme(f,S.entwurf[f]+n*SP[f][0]))},
  art(b){setze('hefeart',b.dataset.v)},
  hefeEdit(){ui.hefeEdit=!ui.hefeEdit;$('#hefebox').innerHTML=hefeHtml();const i=$('#hefeIn');if(i)i.focus()},
  hefeAuto(){S.entwurf.hefeManuell=null;sichern();patchRechner()},
@@ -364,8 +373,8 @@ async function einlesen(file){let d;try{d=JSON.parse(await file.text())}catch(e)
 document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(b&&AKT[b.dataset.act])AKT[b.dataset.act](b)});
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('input:not([type=file]),select'))e.target.blur()});
 document.addEventListener('change',async e=>{const t=e.target;
- if(t.matches('input[data-f]')){const f=t.dataset.f,v=parse(t.value);if(isFinite(v)){const k=klemme(f,v);t.value=nfm(SP[f][3]).format(k);setze(f,k)}else t.value=nfm(SP[f][3]).format(S.entwurf[f])}
- else if(t.id==='hefeIn'){const v=parse(t.value);ui.hefeEdit=false;if(isFinite(v)){S.entwurf.hefeManuell=Math.min(5,Math.max(0,v));sichern()}patchRechner()}
+ if(t.matches('input[data-f]')){const f=t.dataset.f,v=parse(t.value);if(isFinite(v)){if(GS[f])setzeG(f,v);else setze(f,klemme(f,v))}t.value=anz(f)}
+ else if(t.id==='hefeIn'){const v=parse(t.value);ui.hefeEdit=false;if(isFinite(v)){const e=S.entwurf,g=rechnen(e).gesamt;if(g>v)e.hefeManuell=Math.min(5,Math.max(0,100*v*(1+(e.hydration+e.salz)/100)/(g-v)));sichern()}patchRechner()}
  else if(t.id==='schrIn'){S.entwurf.schritte=t.value;sichern();dirtyDot()}
  else if(t.id==='recSel'){if(!await wechsle(t.value))t.value=S.aktiv;else render()}
  else if(t.id==='zSel'){if(!await wechsle(t.value))t.value=S.aktiv;else $('#tl').innerHTML=tlHtml()}
