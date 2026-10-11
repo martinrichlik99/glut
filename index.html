@@ -382,8 +382,7 @@ function verkleinern(file){return new Promise((ok,nein)=>{const u=URL.createObje
 
 function vKochen(){const n=K.rezepte.length;
  return kopf()+'<div class="titel"><div><h1>Kochen</h1><small>'+n+(n===1?' Rezept':' Rezepte')+'</small></div><button class="fab" data-act="kNeu" aria-label="Neues Kochrezept">'+ic('plus')+'</button></div>'
- +alleKats().map(k=>{const c=K.rezepte.filter(r=>r.kat===k).length;return '<button class="kcat'+(c?'':' leer')+'" data-act="kKat" data-k="'+esc(k)+'"><b>'+esc(k)+'</b><small>'+c+(c===1?' Rezept':' Rezepte')+'</small>'+ic('chev')+'</button>'}).join('')
- +'<div class="hinweis">'+ic('info')+'<span>Die Sicherung (Pizza und Kochen) findest du unter „Rezepte“.</span></div>'}
+ +alleKats().map(k=>{const c=K.rezepte.filter(r=>r.kat===k).length;return '<button class="kcat'+(c?'':' leer')+'" data-act="kKat" data-k="'+esc(k)+'"><b>'+esc(k)+'</b><small>'+c+(c===1?' Rezept':' Rezepte')+'</small>'+ic('chev')+'</button>'}).join('')}
 function vKat(){const k=ui.kochKat;if(k==null)return vKochen();const l=K.rezepte.filter(r=>r.kat===k).sort((x,y)=>x.name.localeCompare(y.name,'de'));
  return '<header class="top rtop"><a class="icbtn" href="#kochen" aria-label="Zurück zu den Kategorien">'+ic('back')+'</a><h1>'+esc(k)+'</h1><button class="icbtn" data-act="kNeu" aria-label="Neues Rezept in '+esc(k)+'">'+ic('plus')+'</button></header>'
  +(l.length?l.map(r=>'<button class="kzl" data-act="kOeffne" data-id="'+esc(r.id)+'"><b>'+esc(r.name)+'</b>'+(r.video?'<i aria-label="mit Video">'+ic('play')+'</i>':'')+ic('chev')+'</button>').join(''):'<p class="schr-leer">Noch keine Rezepte in dieser Kategorie.</p>')}
