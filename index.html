@@ -174,15 +174,16 @@ dialog input[hidden]{display:none}
 .wart{opacity:.7}.wart small{color:var(--mu);font-size:13px}
 .kcat svg.i,.kzl svg.i{flex:none;color:var(--mu);transform:rotate(-90deg)}
 .kzl i svg.i{width:16px;height:16px;color:var(--pt);transform:none}
-.hero{border-radius:22px;overflow:hidden;margin:4px 0 16px;aspect-ratio:4/3;background:var(--s1);border:1px solid var(--ln)}
+.hero{border-radius:22px;overflow:hidden;margin:4px 0 12px;aspect-ratio:16/9;background:var(--s1);border:1px solid var(--ln)}
 .hero img{width:100%;height:100%;object-fit:cover;display:block}
 .hero .ph{width:100%;height:100%}
 .hero .ph svg.i{width:64px;height:64px}
 .hero.kl{aspect-ratio:16/9;margin:0 0 10px}
-.kt{margin:0 0 14px}
-.vid{margin-bottom:16px}
+.ktz{display:flex;align-items:center;gap:12px;margin:4px 0 12px}
+.kt{flex:1;min-width:0;margin:0;font-size:22px;line-height:1.2;overflow-wrap:anywhere}
+.vid{flex:none;color:var(--pt)}
 .kz{list-style:none;margin:0;padding:0}
-.kz li{padding:10px 4px;border-bottom:1px solid var(--ln)}
+.kz li{padding:7px 4px;border-bottom:1px solid var(--ln)}
 .kz li:last-child{border:0}
 .kz .kh{border:0;padding:14px 4px 4px;font:800 13px var(--hd);letter-spacing:.06em;text-transform:uppercase;color:var(--pt)}
 .kz .kh:first-child{padding-top:0}
@@ -400,8 +401,8 @@ function vKat(){const k=ui.kochKat;if(k==null)return vKochen();const l=K.rezepte
  +(l.length?l.map(r=>'<button class="kzl" data-act="kOeffne" data-id="'+esc(r.id)+'"><b>'+esc(r.name)+'</b>'+(r.video?'<i aria-label="mit Video">'+ic('play')+'</i>':'')+ic('chev')+'</button>').join(''):'<p class="schr-leer">Noch keine Rezepte in dieser Kategorie.</p>')}
 function vKoch(){const r=K.rezepte.find(x=>x.id===ui.kochId);if(!r)return vKochen();const zl=r.zutaten.split('\n').map(x=>x.trim());
  return '<header class="top rtop"><a class="icbtn" href="#kat" aria-label="Zurück zur Kategorie">'+ic('back')+'</a><h1>'+esc(r.kat)+'</h1><button class="icbtn" data-act="kEdit" aria-label="Rezept bearbeiten">'+ic('pencil')+'</button></header>'
- +'<div class="hero">'+(r.bild?'<img src="'+esc(r.bild)+'" alt="">':'<i class="ph">'+ic('cook')+'</i>')+'</div><h1 class="kt">'+esc(r.name)+'</h1>'
- +(r.video?'<a class="btn vid" href="'+esc(r.video)+'" target="_blank" rel="noopener noreferrer">'+ic('play')+'Video ansehen</a>':'')
+ +(r.bild?'<div class="hero"><img src="'+esc(r.bild)+'" alt=""></div>':'')
+ +'<div class="ktz"><h1 class="kt">'+esc(r.name)+'</h1>'+(r.video?'<a class="icbtn vid" href="'+esc(r.video)+'" target="_blank" rel="noopener noreferrer" aria-label="Video ansehen">'+ic('play')+'</a>':'')+'</div>'
  +'<section class="card"><h2>Zutaten</h2>'+(zl.some(Boolean)?'<ul class="kz">'+zl.filter(Boolean).map(x=>x.endsWith(':')?'<li class="kh">'+esc(x.slice(0,-1))+'</li>':'<li>'+esc(x)+'</li>').join('')+'</ul>':'<p class="schr-leer">Keine Zutaten eingetragen.</p>')+'</section>'
  +'<section class="card"><h2>Beschreibung</h2><p class="kbs">'+esc(r.text||'Noch keine Beschreibung.')+'</p></section>'
  +'<button class="btn2 gef" data-act="kDel">'+ic('trash')+'Rezept löschen</button>'}
