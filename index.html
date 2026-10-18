@@ -170,6 +170,8 @@ dialog input[hidden]{display:none}
 .kzl{min-height:56px;padding:0 14px;margin-bottom:8px;border-radius:14px}
 .kzl b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:16px}
 .kzl i{display:flex;color:var(--pt)}
+.lnk b{color:var(--pt)}
+.wart{opacity:.7}.wart small{color:var(--mu);font-size:13px}
 .kcat svg.i,.kzl svg.i{flex:none;color:var(--mu);transform:rotate(-90deg)}
 .kzl i svg.i{width:16px;height:16px;color:var(--pt);transform:none}
 .hero{border-radius:22px;overflow:hidden;margin:4px 0 16px;aspect-ratio:4/3;background:var(--s1);border:1px solid var(--ln)}
@@ -352,7 +354,9 @@ function vZeitplan(){const e=S.entwurf;
  +'<ul class="tl" id="tl" style="padding:0">'+tlHtml()+'</ul>'
  +'<div class="hinweis">'+ic('info')+'<span>Die Zeiten rechnen sich neu, sobald du Backzeit oder Rezept änderst.</span></div>'}
 
-const KATS=['Vorspeise','Hauptspeise','Beilage','Soßen','Dessert','Snack'],KKEY='glut.koch.v1';
+const KATS=['Vorspeise','Hauptspeise','Beilage','Soßen','Dessert','Snack'],KKEY='glut.koch.v1',KV=6;
+const FORM={url:'https://docs.google.com/forms/d/e/1FAIpQLSdDrxaH22LW1rlp9JMPjmnM3XtTmN9f8aqiyLHiVVr_v8nb7w/formResponse',e:{Vorspeise:'entry.1819340727',Hauptspeise:'entry.1385008911',Beilage:'entry.124916902',Soßen:'entry.47142111',Dessert:'entry.1329975',Snack:'entry.679013309'}};
+const code=u=>(String(u).match(/instagram\.com\/(?:[\w.]+\/)?(?:p|reel|reels|tv)\/([\w-]+)/i)||[])[1];
 const VITELLO={id:'vitello',name:'Vitello Tonnato',kat:'Vorspeise',bild:'',video:'https://www.instagram.com/p/DdZW3dwtHdz/',geaendertAm:0,
 zutaten:['Fleisch:','Kalbsrücken, Semmerrolle (Schwanzstück) oder Oberschale','Salz','Thymian und Rosmarin','Butter','Olivenöl','','Sauce:','1 Eigelb','130 g Thunfisch aus der Dose','1 TL Senf','200 ml neutrales Öl (Raps- oder Sonnenblumenöl)','2 EL Kapern mit Kapernwasser','4–5 Sardellenfilets (im Video 2–3)','Frisch gemahlener Pfeffer','Zitronenabrieb','½ TL Zucker','Ein paar Tropfen Knoblauchöl','','Anrichten:','Zitronenabrieb und Olivenöl','Staudensellerie mit Blättern','Kapernäpfel und Kapern','Frisch gemahlener Pfeffer'].join('\n'),
 text:['1. Silberhaut vom Fleisch abziehen und das Fleisch rundum salzen.','2. Reichlich Öl in der Pfanne erhitzen und das Fleisch von allen Seiten kräftig anbraten.','3. Kräuter mit etwas Butter verkneten und oben auf das Fleisch legen, damit sie langsam einziehen. Das Fleisch dabei auf ein Gitter über ein Blech setzen.','4. Bei ganz niedriger Temperatur in den Ofen schieben, bis die Kerntemperatur etwa 56 °C erreicht. Herausnehmen und abkühlen lassen.','5. Sauce: Thunfisch, Sardellen, Senf, Kapern, Eigelb und Pfeffer in den Mixer geben. Neutrales Öl nach und nach einlaufen lassen.','6. Mit Zitronenabrieb, Zucker und Knoblauchöl abschmecken und noch einmal mixen.','7. Das abgekühlte Fleisch in ganz dünne Scheiben schneiden.','8. Reichlich Sauce auf den Teller, die Scheiben darauf. Mit Kapern, Sellerie, Kapernäpfeln, Sellerieblättern, Zitronenabrieb, Olivenöl und Pfeffer anrichten.','','Hinweis: Im Video steht weder eine Ofentemperatur noch eine Fleischmenge.','Quelle: Tim Armann (Instagram)'].join('\n')};
@@ -376,7 +380,7 @@ function normK(r){r=r||{};const b=String(r.bild||''),v=String(r.video||'').trim(
 function ladenK(){let d=null;try{d=JSON.parse(localStorage.getItem(KKEY))}catch(e){}
  d=d&&typeof d==='object'?d:{};const alt=Array.isArray(d.rezepte),l=alt?d.rezepte:[VITELLO,GANS,MAYO,CHIA,TALER,BUTTER];
  if(alt)[[2,GANS],[3,MAYO],[4,CHIA],[5,TALER],[6,BUTTER]].forEach(([v,n])=>{if(!(d.v>=v)&&!l.some(r=>r&&r.id===n.id))l.push(n)});
- const rez=l.map(normK);return{v:6,rezepte:rez,kats:katsAus(d.kats,rez)}}
+ const rez=l.map(normK);return{v:KV,rezepte:rez,kats:katsAus(d.kats,rez),links:(Array.isArray(d.links)?d.links:[]).filter(x=>x&&FORM.e[x.k]&&code(x.u)&&!rez.some(r=>code(r.video)===code(x.u))).map(x=>({k:x.k,u:String(x.u).slice(0,500)}))}}
 function sichernK(){try{localStorage.setItem(KKEY,JSON.stringify(K))}catch(e){toast('Speichern fehlgeschlagen – Speicher voll? Kleineres Bild oder Rezepte löschen')}}
 const alleKats=()=>[...KATS,...K.kats];
 const katOpts=()=>alleKats().map(k=>'<option'+(k===ui.kform.kat?' selected':'')+'>'+esc(k)+'</option>').join('')+'<option value="">+ Neue Kategorie …</option>';
@@ -388,6 +392,7 @@ function vKochen(){const n=K.rezepte.length;
  +alleKats().map(k=>{const c=K.rezepte.filter(r=>r.kat===k).length;return '<button class="kcat'+(c?'':' leer')+'" data-act="kKat" data-k="'+esc(k)+'"><b>'+esc(k)+'</b><small>'+c+(c===1?' Rezept':' Rezepte')+'</small>'+ic('chev')+'</button>'}).join('')}
 function vKat(){const k=ui.kochKat;if(k==null)return vKochen();const l=K.rezepte.filter(r=>r.kat===k).sort((x,y)=>x.name.localeCompare(y.name,'de'));
  return '<header class="top rtop"><a class="icbtn" href="#kochen" aria-label="Zurück zu den Kategorien">'+ic('back')+'</a><h1>'+esc(k)+'</h1><button class="icbtn" data-act="kNeu" aria-label="Neues Rezept in '+esc(k)+'">'+ic('plus')+'</button></header>'
+ +(FORM.e[k]?'<button class="kzl lnk" data-act="kLink" data-k="'+esc(k)+'"><b>＋ Link einfügen</b></button>'+K.links.filter(x=>x.k===k).map(x=>'<div class="kzl wart"><b>'+esc(code(x.u))+'</b><small>wartet auf Import</small></div>').join(''):'')
  +(l.length?l.map(r=>'<button class="kzl" data-act="kOeffne" data-id="'+esc(r.id)+'"><b>'+esc(r.name)+'</b>'+(r.video?'<i aria-label="mit Video">'+ic('play')+'</i>':'')+ic('chev')+'</button>').join(''):'<p class="schr-leer">Noch keine Rezepte in dieser Kategorie.</p>')}
 function vKoch(){const r=K.rezepte.find(x=>x.id===ui.kochId);if(!r)return vKochen();const zl=r.zutaten.split('\n').map(x=>x.trim());
  return '<header class="top rtop"><a class="icbtn" href="#kat" aria-label="Zurück zur Kategorie">'+ic('back')+'</a><h1>'+esc(r.kat)+'</h1><button class="icbtn" data-act="kEdit" aria-label="Rezept bearbeiten">'+ic('pencil')+'</button></header>'
@@ -440,6 +445,10 @@ const AKT={
  kNeu(){const k=location.hash==='#kat'&&ui.kochKat!=null;ui.kform={id:null,name:'',kat:k?ui.kochKat:KATS[1],bild:'',video:'',zutaten:'',text:'',zurueck:k?'#kat':'#kochen'};location.hash='#kform'},
  kOeffne(b){const r=K.rezepte.find(x=>x.id===b.dataset.id);ui.kochId=b.dataset.id;ui.kochKat=r?r.kat:null;location.hash='#koch'},
  kEdit(){const r=K.rezepte.find(x=>x.id===ui.kochId);if(r){ui.kform=Object.assign({},r,{zurueck:'#koch'});location.hash='#kform'}},
+ async kLink(b){const k=b.dataset.k,n=await fragen('Link einfügen','Instagram-Link für „'+k+'“',{eingabe:'',ok:'Senden'});if(n===null)return;const u=n.trim(),c=code(u);
+  if(!c)return toast('Das ist kein Instagram-Link');if(K.rezepte.some(r=>code(r.video)===c))return toast('Dieses Rezept ist schon da');if(K.links.some(x=>code(x.u)===c))return toast('Link ist schon eingetragen');
+  try{await fetch(FORM.url,{method:'POST',mode:'no-cors',body:new URLSearchParams({[FORM.e[k]]:u})})}catch(e){return toast('Senden fehlgeschlagen – Internet? Bitte nochmal')}
+  K.links.push({k,u:u.slice(0,500)});sichernK();render();toast('Link gesendet')},
  kBild(){$('#kFile').click()},
  kBildWeg(){ui.kform.bild='';$('#kPrev').innerHTML=prevHtml()},
  kSave(){const f=ui.kform,n=$('#kN').value.trim(),v=$('#kV').value.trim();if(!n)return toast('Titel fehlt');if(v&&!/^https?:\/\/\S+$/i.test(v))return toast('Video-Link muss mit https:// beginnen');
@@ -459,7 +468,7 @@ async function einlesen(file){let d;try{d=JSON.parse(await file.text())}catch(e)
  const neu=d.rezepte.map(norm),kn=Array.isArray(d.koch)?d.koch.map(normK):null;
  if(!await fragen('Sicherung einlesen?',neu.length+' Pizza-Rezepte'+(kn?' und '+kn.length+' Kochrezepte':'')+' einlesen. Deine aktuellen Rezepte werden ersetzt.',{ok:'Einlesen'}))return;
  try{localStorage.setItem(KEY+'.vorimport',JSON.stringify(S))}catch(e){}
- if(kn){try{localStorage.setItem(KKEY+'.vorimport',JSON.stringify(K))}catch(e){}K={v:3,rezepte:kn,kats:katsAus(d.kats,kn)};sichernK()}
+ if(kn){try{localStorage.setItem(KKEY+'.vorimport',JSON.stringify(K))}catch(e){}K={v:KV,rezepte:kn,kats:katsAus(d.kats,kn),links:K.links};sichernK()}
  S.rezepte=neu;S.aktiv=neu.some(r=>r.id===d.aktiv)?d.aktiv:neu[0].id;S.entwurf=norm(S.rezepte.find(r=>r.id===S.aktiv));sichern();render();toast(neu.length+(kn?' + '+kn.length:'')+' Rezepte eingelesen')}
 
 document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(b&&AKT[b.dataset.act])AKT[b.dataset.act](b)});
