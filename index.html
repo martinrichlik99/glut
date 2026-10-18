@@ -45,7 +45,6 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .gruss i{width:8px;height:8px;border-radius:50%;background:var(--pr)}
 .lead{color:var(--mu);margin:0 0 26px}
 .sec{font:800 20px var(--hd);margin:0 0 14px}
-.rowhead{display:flex;justify-content:space-between;align-items:baseline;margin-top:28px}
 .link{color:var(--pt);font-weight:600}
 .kat{display:block;position:relative;height:160px;border-radius:22px;overflow:hidden;margin-bottom:12px;color:#fff;isolation:isolate;border:1px solid var(--ln)}
 .kat::before{content:"";position:absolute;inset:0;background:var(--bild) center/cover;z-index:-2}
@@ -57,11 +56,6 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .kat.on .tag{background:var(--pr);color:var(--on)}
 .kat.off .tag{background:rgba(0,0,0,.55);color:#EEE}
 .tag svg.i{width:15px;height:15px}
-.hs{display:flex;gap:12px;overflow-x:auto;margin:0 -20px;padding:2px 20px 8px;scroll-snap-type:x proximity}
-.mini{flex:0 0 240px;scroll-snap-align:start;text-align:left;background:var(--s1);border:1px solid var(--ln);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:10px}
-.mini b{font-size:17px}
-.mini .m{display:flex;justify-content:space-between;color:var(--mu);font-size:13px;border-top:1px solid var(--ln);padding-top:10px}
-.mini .m span:last-child{color:var(--pt);font-weight:700}
 .pill{align-self:flex-start;display:inline-block;padding:3px 9px;border-radius:8px;background:var(--pill);color:var(--pt);font:700 12px var(--bd)}
 nav.tabs{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 12px);width:min(440px,calc(100% - 24px));display:flex;gap:4px;padding:6px;border-radius:30px;background:var(--s1);border:1px solid var(--ln);box-shadow:0 8px 30px rgba(0,0,0,.35);z-index:5}
 nav.tabs a{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px;border-radius:24px;font-size:12px;font-weight:600;color:var(--pt)}
@@ -287,17 +281,13 @@ function fragen(t,p,o){o=o||{};return new Promise(res=>{const d=$('#dlg'),i=$('#
 const verwerfenOk=async()=>!geaendert()||fragen('Änderungen verwerfen?','Die Änderungen an „'+S.entwurf.name+'“ sind nicht gespeichert.',{ok:'Verwerfen'});
 
 const kopf=()=>'<header class="top"><div class="logo">'+ic('flame')+'<span>GLUT</span></div><button class="icbtn" data-act="theme" aria-label="'+(S.theme==='dark'?'Zum hellen Design wechseln':'Zum dunklen Design wechseln')+'">'+ic(S.theme==='dark'?'moon':'sun')+'</button></header>';
-const meta=r=>nfm(0).format(r.pizzen)+' Pizzen · '+nfm(1).format(r.gewicht)+' g';
 const hydr=r=>'<span class="pill">'+nfm(1).format(r.hydration)+' % Hydration</span>';
 
 function vStart(){const h=new Date().getHours();const gruss=h<5?'Gute Nacht':h<11?'Guten Morgen':h<18?'Guten Tag':'Guten Abend';
- const zul=[...S.rezepte].sort((a,b)=>b.geaendertAm-a.geaendertAm).slice(0,4);
  const sperre=(n,t,bild)=>'<div class="kat off" style="--bild:url(img/'+bild+'.jpg)"><span class="tag">'+ic('lock')+'Bald</span><b>'+n+'</b><small>'+t+'</small></div>';
  return kopf()+'<p class="gruss"><i></i>'+gruss+'</p><h1 class="hl">Teig, Glut &amp; <em>Genuss</em></h1>'
  +'<a class="kat on" href="#rechner" style="--bild:url(img/pizza.jpg)"><span class="tag" aria-hidden="true">'+ic('arrow')+'</span><b>Pizza</b><small>Teig, Gare, perfekter Rand</small></a>'
- +sperre('Grillen','Glut, Marinaden, Temperaturen','grillen')+'<a class="kat on" href="#kochen" style="--bild:url(img/kochen.jpg)"><span class="tag" aria-hidden="true">'+ic('arrow')+'</span><b>Kochen</b><small>Alltag und Lieblingsgerichte</small></a>'
- +'<div class="rowhead"><h2 class="sec">Zuletzt gebacken</h2><a class="link" href="#rezepte">Alle ansehen ›</a></div>'
- +'<div class="hs">'+zul.map(r=>'<button class="mini" data-act="oeffne" data-id="'+esc(r.id)+'">'+hydr(r)+'<b>'+esc(r.name)+'</b><span class="m"><span>'+meta(r)+'</span><span>'+nfm(1).format(kuehl(r))+' h</span></span></button>').join('')+'</div>'}
+ +sperre('Grillen','Glut, Marinaden, Temperaturen','grillen')+'<a class="kat on" href="#kochen" style="--bild:url(img/kochen.jpg)"><span class="tag" aria-hidden="true">'+ic('arrow')+'</span><b>Kochen</b><small>Alltag und Lieblingsgerichte</small></a>'}
 
 function step(f,label,sub,unit){
  return '<div class="row"><div class="lab"><b>'+label+'</b><small>'+sub+'</small></div><div class="stp"><button class="rb" data-act="step" data-f="'+f+'" data-d="-1" aria-label="'+label+' verringern">'+ic('minus')+'</button><label class="val"><input inputmode="decimal" data-f="'+f+'" value="'+anz(f)+'" aria-label="'+label+'"><small>'+unit+'</small></label><button class="rb p" data-act="step" data-f="'+f+'" data-d="1" aria-label="'+label+' erhöhen">'+ic('plus')+'</button></div></div>'}
@@ -356,7 +346,7 @@ function vZeitplan(){const e=S.entwurf;
  +'<div class="hinweis">'+ic('info')+'<span>Die Zeiten rechnen sich neu, sobald du Backzeit oder Rezept änderst.</span></div>'}
 
 const KATS=['Vorspeise','Hauptspeise','Beilage','Soßen','Dessert','Fitness-Süßes','Snack'],KKEY='glut.koch.v1',KV=8;
-const FORM={url:'https://docs.google.com/forms/d/e/1FAIpQLSdDrxaH22LW1rlp9JMPjmnM3XtTmN9f8aqiyLHiVVr_v8nb7w/formResponse',e:{Vorspeise:'entry.1819340727',Hauptspeise:'entry.1385008911',Beilage:'entry.124916902',Soßen:'entry.47142111',Dessert:'entry.1329975',Snack:'entry.679013309'}};
+const FORM={url:'https://docs.google.com/forms/d/e/1FAIpQLSdDrxaH22LW1rlp9JMPjmnM3XtTmN9f8aqiyLHiVVr_v8nb7w/formResponse',e:{Vorspeise:'entry.1819340727',Hauptspeise:'entry.1385008911',Beilage:'entry.124916902',Soßen:'entry.47142111',Dessert:'entry.1329975','Fitness-Süßes':'entry.1152491036',Snack:'entry.679013309'}};
 const code=u=>(String(u).match(/instagram\.com\/(?:[\w.]+\/)?(?:p|reel|reels|tv)\/([\w-]+)/i)||[])[1];
 const VITELLO={id:'vitello',name:'Vitello Tonnato',kat:'Vorspeise',bild:'',video:'https://www.instagram.com/p/DdZW3dwtHdz/',geaendertAm:0,
 zutaten:['Fleisch:','Kalbsrücken, Semmerrolle (Schwanzstück) oder Oberschale','Salz','Thymian und Rosmarin','Butter','Olivenöl','','Sauce:','1 Eigelb','130 g Thunfisch aus der Dose','1 TL Senf','200 ml neutrales Öl (Raps- oder Sonnenblumenöl)','2 EL Kapern mit Kapernwasser','4–5 Sardellenfilets (im Video 2–3)','Frisch gemahlener Pfeffer','Zitronenabrieb','½ TL Zucker','Ein paar Tropfen Knoblauchöl','','Anrichten:','Zitronenabrieb und Olivenöl','Staudensellerie mit Blättern','Kapernäpfel und Kapern','Frisch gemahlener Pfeffer'].join('\n'),
