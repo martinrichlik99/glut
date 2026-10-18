@@ -362,12 +362,15 @@ text:['1. 24 Std. vorher die gefrorene Gans zum Auftauen in Salzwasser legen.','
 const MAYO={id:'mayo',name:'Light-Mayonnaise',kat:'Soßen',bild:'',video:'https://www.instagram.com/p/C7zY7ZkMN27/',geaendertAm:0,
 zutaten:['Für ca. 250 g:','3 hartgekochte Eier','15 ml Sonnenblumenöl','50 ml Wasser','10 g Senf','1 Prise Salz','Etwas Zitronensaft','Optional:','Apfelessig und weitere Gewürze nach Wahl','20 g Proteinpulver (Sahne-Geschmack) für eine Protein-Mayo'].join('\n'),
 text:['1. Alle Zutaten in einen Mixer geben, die Eier zuerst.','2. Alles cremig mixen, fertig.','','Passt als Dip, in den Salat oder zum Grillen.','','Nährwerte laut Beschreibung (250 g ohne Proteinpulver): 426 kcal, 35 g Fett, 0,2 g Kohlenhydrate, 19 g Eiweiß. Pro 100 g: 170 kcal, 14 g Fett, 0,08 g Kohlenhydrate, 7,6 g Eiweiß.','Quelle: Sabrina Mirella Börke (Instagram)'].join('\n')};
+const CHIA={id:'chia',name:'Schoko-Chia-Pudding',kat:'Dessert',bild:'',video:'https://www.instagram.com/p/Demc_rZt5dD/',geaendertAm:0,
+zutaten:['Für 2 Portionen:','240 g griechischer Joghurt (2 % Fett)','240 ml Mandelmilch, ungesüßt','45 g Chiasamen','2 EL Backkakao, ungesüßt (ca. 10 g)','1,5 EL Ahornsirup (oder nach Geschmack)','1 TL Vanilleextrakt'].join('\n'),
+text:['1. Joghurt, Mandelmilch, Kakao, Ahornsirup und Vanille glatt rühren.','2. Chiasamen einrühren und 10 Min. quellen lassen.','3. Noch einmal kräftig umrühren, damit nichts verklumpt.','4. Abgedeckt mind. 4 Std. oder über Nacht in den Kühlschrank stellen.','5. Umrühren, toppen und genießen.','','Nährwerte pro Portion laut Beschreibung (ca.): 270 kcal, 18 g Eiweiß, 16 g Kohlenhydrate, 12 g Fett.','Quelle: Marko Maksimovic (Instagram), Originaler Creator laut Beschreibung: @foolproofliving'].join('\n')};
 const katsAus=(a,rez)=>[...(Array.isArray(a)?a:[]),...rez.map(r=>r.kat)].map(k=>String(k).trim().slice(0,30)).filter((k,i,x)=>k&&!KATS.includes(k)&&x.indexOf(k)===i).slice(0,20);
 function normK(r){r=r||{};const b=String(r.bild||''),v=String(r.video||'').trim();return{id:typeof r.id==='string'&&/^[\w-]{1,40}$/.test(r.id)?r.id:neueId(),name:String(r.name||'Rezept').slice(0,80),kat:String(r.kat||KATS[1]).trim().slice(0,30)||KATS[1],bild:b.length<400000&&/^data:image\/jpeg;base64,[\w+/=]+$/.test(b)?b:'',video:/^https?:\/\/\S{1,500}$/i.test(v)?v:'',zutaten:String(r.zutaten||'').slice(0,4000),text:String(r.text||'').slice(0,8000),geaendertAm:Number(r.geaendertAm)||0}}
 function ladenK(){let d=null;try{d=JSON.parse(localStorage.getItem(KKEY))}catch(e){}
- d=d&&typeof d==='object'?d:{};const alt=Array.isArray(d.rezepte),l=alt?d.rezepte:[VITELLO,GANS,MAYO];
- if(alt)[[2,GANS],[3,MAYO]].forEach(([v,n])=>{if(!(d.v>=v)&&!l.some(r=>r&&r.id===n.id))l.push(n)});
- const rez=l.map(normK);return{v:3,rezepte:rez,kats:katsAus(d.kats,rez)}}
+ d=d&&typeof d==='object'?d:{};const alt=Array.isArray(d.rezepte),l=alt?d.rezepte:[VITELLO,GANS,MAYO,CHIA];
+ if(alt)[[2,GANS],[3,MAYO],[4,CHIA]].forEach(([v,n])=>{if(!(d.v>=v)&&!l.some(r=>r&&r.id===n.id))l.push(n)});
+ const rez=l.map(normK);return{v:4,rezepte:rez,kats:katsAus(d.kats,rez)}}
 function sichernK(){try{localStorage.setItem(KKEY,JSON.stringify(K))}catch(e){toast('Speichern fehlgeschlagen – Speicher voll? Kleineres Bild oder Rezepte löschen')}}
 const alleKats=()=>[...KATS,...K.kats];
 const katOpts=()=>alleKats().map(k=>'<option'+(k===ui.kform.kat?' selected':'')+'>'+esc(k)+'</option>').join('')+'<option value="">+ Neue Kategorie …</option>';
