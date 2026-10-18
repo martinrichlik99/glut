@@ -354,7 +354,7 @@ function vZeitplan(){const e=S.entwurf;
  +'<ul class="tl" id="tl" style="padding:0">'+tlHtml()+'</ul>'
  +'<div class="hinweis">'+ic('info')+'<span>Die Zeiten rechnen sich neu, sobald du Backzeit oder Rezept änderst.</span></div>'}
 
-const KATS=['Vorspeise','Hauptspeise','Beilage','Soßen','Dessert','Snack'],KKEY='glut.koch.v1',KV=6;
+const KATS=['Vorspeise','Hauptspeise','Beilage','Soßen','Dessert','Snack'],KKEY='glut.koch.v1',KV=7;
 const FORM={url:'https://docs.google.com/forms/d/e/1FAIpQLSdDrxaH22LW1rlp9JMPjmnM3XtTmN9f8aqiyLHiVVr_v8nb7w/formResponse',e:{Vorspeise:'entry.1819340727',Hauptspeise:'entry.1385008911',Beilage:'entry.124916902',Soßen:'entry.47142111',Dessert:'entry.1329975',Snack:'entry.679013309'}};
 const code=u=>(String(u).match(/instagram\.com\/(?:[\w.]+\/)?(?:p|reel|reels|tv)\/([\w-]+)/i)||[])[1];
 const VITELLO={id:'vitello',name:'Vitello Tonnato',kat:'Vorspeise',bild:'',video:'https://www.instagram.com/p/DdZW3dwtHdz/',geaendertAm:0,
@@ -375,11 +375,14 @@ text:['Ergibt 14 Stück. Pro Stück laut Beschreibung: 42 kcal, 3 g Eiweiß, 1,7
 const BUTTER={id:'butter',name:'Butterschnitzel mit Erdäpfelpüree',kat:'Hauptspeise',bild:'',video:'https://www.instagram.com/p/DN7-jDUCLOs/',geaendertAm:0,
 zutaten:'',
 text:['Hinweis: Im Text stehen weder Zutaten noch Zubereitung, nur die Namen der Gerichte (Butterschnitzel, Erdäpfelpüree, cremige Sauce). Das Rezept gibt es nur im Video.','Quelle: Gerhard Dragschitz, motioncooking (Instagram)'].join('\n')};
+const COTTAGE={id:'cottage',name:'Cottage-Cheese-Kuchen',kat:'Dessert',bild:'',video:'https://www.instagram.com/reel/DeZldAzC0xM/',geaendertAm:0,
+zutaten:['1 Becher Cottage Cheese (ganz)','2 EL griechischer Joghurt','2 Scoops Proteinpulver, Geschmack Vanille','1 EL geriebene Mandeln','2 Eier','1 EL Backkakao'].join('\n'),
+text:['1. Alles gründlich verrühren.','2. In die Form füllen und backen, bis der Kuchen fest ist.','','Makros laut Beschreibung (ganzer Kuchen, ca.): 500 kcal, 44 g Eiweiß, 21 g Kohlenhydrate, 26 g Fett.','','Hinweis: Im Text fehlen die Becher-Größe, die Form, die Ofentemperatur und die Backzeit.','Quelle: Alex Raww (Instagram), Original laut Beschreibung: @thechefoutwest'].join('\n')};
 const katsAus=(a,rez)=>[...(Array.isArray(a)?a:[]),...rez.map(r=>r.kat)].map(k=>String(k).trim().slice(0,30)).filter((k,i,x)=>k&&!KATS.includes(k)&&x.indexOf(k)===i).slice(0,20);
 function normK(r){r=r||{};const b=String(r.bild||''),v=String(r.video||'').trim();return{id:typeof r.id==='string'&&/^[\w-]{1,40}$/.test(r.id)?r.id:neueId(),name:String(r.name||'Rezept').slice(0,80),kat:String(r.kat||KATS[1]).trim().slice(0,30)||KATS[1],bild:b.length<400000&&/^data:image\/jpeg;base64,[\w+/=]+$/.test(b)?b:'',video:/^https?:\/\/\S{1,500}$/i.test(v)?v:'',zutaten:String(r.zutaten||'').slice(0,4000),text:String(r.text||'').slice(0,8000),geaendertAm:Number(r.geaendertAm)||0}}
 function ladenK(){let d=null;try{d=JSON.parse(localStorage.getItem(KKEY))}catch(e){}
- d=d&&typeof d==='object'?d:{};const alt=Array.isArray(d.rezepte),l=alt?d.rezepte:[VITELLO,GANS,MAYO,CHIA,TALER,BUTTER];
- if(alt)[[2,GANS],[3,MAYO],[4,CHIA],[5,TALER],[6,BUTTER]].forEach(([v,n])=>{if(!(d.v>=v)&&!l.some(r=>r&&r.id===n.id))l.push(n)});
+ d=d&&typeof d==='object'?d:{};const alt=Array.isArray(d.rezepte),l=alt?d.rezepte:[VITELLO,GANS,MAYO,CHIA,TALER,BUTTER,COTTAGE];
+ if(alt)[[2,GANS],[3,MAYO],[4,CHIA],[5,TALER],[6,BUTTER],[7,COTTAGE]].forEach(([v,n])=>{if(!(d.v>=v)&&!l.some(r=>r&&r.id===n.id))l.push(n)});
  const rez=l.map(normK);return{v:KV,rezepte:rez,kats:katsAus(d.kats,rez),links:(Array.isArray(d.links)?d.links:[]).filter(x=>x&&FORM.e[x.k]&&code(x.u)&&!rez.some(r=>code(r.video)===code(x.u))).map(x=>({k:x.k,u:String(x.u).slice(0,500)}))}}
 function sichernK(){try{localStorage.setItem(KKEY,JSON.stringify(K))}catch(e){toast('Speichern fehlgeschlagen – Speicher voll? Kleineres Bild oder Rezepte löschen')}}
 const alleKats=()=>[...KATS,...K.kats];
