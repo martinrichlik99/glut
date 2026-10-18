@@ -345,7 +345,7 @@ function vZeitplan(){const e=S.entwurf;
  +'<ul class="tl" id="tl" style="padding:0">'+tlHtml()+'</ul>'
  +'<div class="hinweis">'+ic('info')+'<span>Die Zeiten rechnen sich neu, sobald du Backzeit oder Rezept änderst.</span></div>'}
 
-const KATS=['Vorspeise','Hauptspeise','Beilage','Soßen','Dessert','Fitness-Süßes','Snack'],KKEY='glut.koch.v1',KV=8;
+const KATS=['Vorspeise','Hauptspeise','Beilage','Soßen','Dessert','Fitness-Süßes','Snack'],KKEY='glut.koch.v1',KV=9;
 const FORM={url:'https://docs.google.com/forms/d/e/1FAIpQLSdDrxaH22LW1rlp9JMPjmnM3XtTmN9f8aqiyLHiVVr_v8nb7w/formResponse',e:{Vorspeise:'entry.1819340727',Hauptspeise:'entry.1385008911',Beilage:'entry.124916902',Soßen:'entry.47142111',Dessert:'entry.1329975','Fitness-Süßes':'entry.1152491036',Snack:'entry.679013309'}};
 const code=u=>(String(u).match(/instagram\.com\/(?:[\w.]+\/)?(?:p|reel|reels|tv)\/([\w-]+)/i)||[])[1];
 const VITELLO={id:'vitello',name:'Vitello Tonnato',kat:'Vorspeise',bild:'',video:'https://www.instagram.com/p/DdZW3dwtHdz/',geaendertAm:0,
@@ -369,11 +369,17 @@ text:['1. Püree: Die Erdäpfel schon am Vortag kochen. Durch die Erdäpfelpress
 const COTTAGE={id:'cottage',name:'Cottage-Cheese-Kuchen',kat:'Dessert',bild:'',video:'https://www.instagram.com/reel/DeZldAzC0xM/',geaendertAm:0,
 zutaten:['1 Becher Cottage Cheese (ganz)','2 EL griechischer Joghurt','2 Scoops Proteinpulver, Geschmack Vanille','1 EL geriebene Mandeln','2 Eier','1 EL Backkakao'].join('\n'),
 text:['1. Cottage Cheese, Eier, Kakao, Joghurt, Mandeln und Proteinpulver in den Mixer geben.','2. Alles gründlich zu einer glatten Masse mixen.','3. In eine Form füllen und etwa 40 Minuten bei Ober- und Unterhitze backen, bis der Kuchen fest ist.','','Makros laut Beschreibung (ganzer Kuchen, ca.): 500 kcal, 44 g Eiweiß, 21 g Kohlenhydrate, 26 g Fett.','','Hinweis: Die Ofentemperatur, die Becher-Größe und die Form werden nicht genannt. Im Video kommt noch ein Süßungsmittel dazu (Honig, im Original Ahornsirup) und etwas Vanille, Menge nicht genannt.','Quelle: Alex Raww (Instagram), Original laut Beschreibung: @thechefoutwest'].join('\n')};
+const BROWNIE={id:'brownie',name:'Protein-Brownie',kat:'Fitness-Süßes',bild:'',video:'https://www.instagram.com/reel/Dd6xjq6oqvD/',geaendertAm:0,
+zutaten:['250 g Kidneybohnen, abgetropft','25 g Schoko-Whey','15 g Backkakao','2 Eier','40 ml Milch (1,5 %)','3 g Backpulver','Süße nach Geschmack (Autor nimmt Erythrit)'].join('\n'),
+text:['1. Kidneybohnen gründlich abspülen und gut abtropfen lassen.','2. Mit Schoko-Whey, Backkakao, Eiern, Milch, Backpulver und etwas Süße in den Mixer geben und mixen, bis eine glatte, cremige Masse entsteht.','3. Den Teig in eine kleine Backform geben und bei 180 °C Umluft etwa 20–25 Minuten backen. Für einen saftigeren Brownie früher aus dem Ofen nehmen, danach kurz abkühlen lassen.','','Nährwerte für den ganzen Brownie laut Beschreibung (ca.): 570 kcal, 57 g Eiweiß, 40–45 g Kohlenhydrate, 15–17 g Fett, 20–21 g Ballaststoffe.','Quelle: Azad (Instagram)'].join('\n')};
+const PKUCHEN={id:'pkuchen',name:'Protein-Kuchen',kat:'Fitness-Süßes',bild:'',video:'https://www.instagram.com/reel/DWvdq1DCjpF/',geaendertAm:0,
+zutaten:['Für 2 Portionen:','250 g Skyr oder Magerquark','50 g Grieß','1 Ei','5 g Backpulver','1–2 Scoops Proteinpulver, Geschmack Vanille','Puderzucker zum Bestäuben'].join('\n'),
+text:['1. Backofen auf 160 °C Umluft vorheizen.','2. Alle Zutaten in einer kleinen Auflaufform gut verrühren.','3. Im vorgeheizten Ofen etwa 25–30 Minuten backen.','4. Kurz abkühlen lassen, anschneiden und mit Puderzucker bestäuben.','','Nährwerte pro Portion laut Beschreibung: 215 kcal, 20 g Eiweiß, 24 g Kohlenhydrate, 3 g Fett.','Quelle: Jaqueline Blanc (Instagram)'].join('\n')};
 const katsAus=(a,rez)=>[...(Array.isArray(a)?a:[]),...rez.map(r=>r.kat)].map(k=>String(k).trim().slice(0,30)).filter((k,i,x)=>k&&!KATS.includes(k)&&x.indexOf(k)===i).slice(0,20);
 function normK(r){r=r||{};const b=String(r.bild||''),v=String(r.video||'').trim();return{id:typeof r.id==='string'&&/^[\w-]{1,40}$/.test(r.id)?r.id:neueId(),name:String(r.name||'Rezept').slice(0,80),kat:String(r.kat||KATS[1]).trim().slice(0,30)||KATS[1],bild:b.length<400000&&/^data:image\/jpeg;base64,[\w+/=]+$/.test(b)?b:'',video:/^https?:\/\/\S{1,500}$/i.test(v)?v:'',zutaten:String(r.zutaten||'').slice(0,4000),text:String(r.text||'').slice(0,8000),geaendertAm:Number(r.geaendertAm)||0}}
 function ladenK(){let d=null;try{d=JSON.parse(localStorage.getItem(KKEY))}catch(e){}
- d=d&&typeof d==='object'?d:{};const alt=Array.isArray(d.rezepte),l=alt?d.rezepte:[VITELLO,GANS,MAYO,CHIA,TALER,BUTTER,COTTAGE];
- if(alt)[[2,GANS],[3,MAYO],[4,CHIA],[5,TALER],[6,BUTTER],[7,COTTAGE]].forEach(([v,n])=>{if(!(d.v>=v)&&!l.some(r=>r&&r.id===n.id))l.push(n)});
+ d=d&&typeof d==='object'?d:{};const alt=Array.isArray(d.rezepte),l=alt?d.rezepte:[VITELLO,GANS,MAYO,CHIA,TALER,BUTTER,COTTAGE,BROWNIE,PKUCHEN];
+ if(alt)[[2,GANS],[3,MAYO],[4,CHIA],[5,TALER],[6,BUTTER],[7,COTTAGE],[9,BROWNIE],[9,PKUCHEN]].forEach(([v,n])=>{if(!(d.v>=v)&&!l.some(r=>r&&r.id===n.id))l.push(n)});
  if(alt&&!(d.v>=8))[TALER,BUTTER,COTTAGE].forEach(n=>{const i=l.findIndex(r=>r&&r.id===n.id&&!r.geaendertAm);if(i>=0)l[i]=n});
  const rez=l.map(normK);return{v:KV,rezepte:rez,kats:katsAus(d.kats,rez),links:(Array.isArray(d.links)?d.links:[]).filter(x=>x&&FORM.e[x.k]&&code(x.u)&&!rez.some(r=>code(r.video)===code(x.u))).map(x=>({k:x.k,u:String(x.u).slice(0,500)}))}}
 function sichernK(){try{localStorage.setItem(KKEY,JSON.stringify(K))}catch(e){toast('Speichern fehlgeschlagen – Speicher voll? Kleineres Bild oder Rezepte löschen')}}
