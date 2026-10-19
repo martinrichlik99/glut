@@ -280,7 +280,7 @@ function zeige(d,cb){let f=false;const fm=d.querySelector('form');const ende=v=>
 function fragen(t,p,o){o=o||{};return new Promise(res=>{const d=$('#dlg'),i=$('#dI');$('#dT').textContent=t;$('#dP').textContent=p||'';i.hidden=o.eingabe===undefined;i.value=o.eingabe||'';$('#dOk').textContent=o.ok||'OK';zeige(d,v=>res(v==='ok'?(o.eingabe===undefined?true:(i.value.trim()||o.eingabe)):null));if(!i.hidden)i.select()})}
 const verwerfenOk=async()=>!geaendert()||fragen('Änderungen verwerfen?','Die Änderungen an „'+S.entwurf.name+'“ sind nicht gespeichert.',{ok:'Verwerfen'});
 
-const kopf=()=>'<header class="top"><div class="logo">'+ic('flame')+'<span>GLUT</span></div><button class="icbtn" data-act="theme" aria-label="'+(S.theme==='dark'?'Zum hellen Design wechseln':'Zum dunklen Design wechseln')+'">'+ic(S.theme==='dark'?'moon':'sun')+'</button></header>';
+const kopf=()=>'<header class="top"><div class="logo">'+ic('flame')+'<span>GLUT</span></div><span style="display:flex;gap:8px">'+(ansicht()==='kochen'?'<a class="icbtn" href="#start" aria-label="Zur Startseite">'+ic('slice')+'</a>':'')+'<button class="icbtn" data-act="theme" aria-label="'+(S.theme==='dark'?'Zum hellen Design wechseln':'Zum dunklen Design wechseln')+'">'+ic(S.theme==='dark'?'moon':'sun')+'</button></span></header>';
 const hydr=r=>'<span class="pill">'+nfm(1).format(r.hydration)+' % Hydration</span>';
 
 function vStart(){const h=new Date().getHours();const gruss=h<5?'Gute Nacht':h<11?'Guten Morgen':h<18?'Guten Tag':'Guten Abend';
@@ -468,7 +468,7 @@ const ansicht=()=>{const h=location.hash.slice(1);return ROUTEN[h]?h:'start'};
 function render(){const v=ansicht();document.documentElement.dataset.theme=S.theme;
  document.querySelector('meta[name=theme-color]').content=S.theme==='dark'?'#151210':'#FAF5EE';
  $('#app').innerHTML=ROUTEN[v]();
- $('nav.tabs').innerHTML=['start','kat','koch','kform'].includes(v)?'':(['rechner','rezepte','zeitplan'].includes(v)?NAV:NAV.slice(0,1)).map(n=>'<a href="#'+n[0]+'"'+(n[0]===v?' aria-current="page"':'')+'>'+ic(n[1])+n[2]+'</a>').join('');
+ $('nav.tabs').innerHTML=(['rechner','rezepte','zeitplan'].includes(v)?NAV:[]).map(n=>'<a href="#'+n[0]+'"'+(n[0]===v?' aria-current="page"':'')+'>'+ic(n[1])+n[2]+'</a>').join('');
  if(v!==letzte){window.scrollTo(0,0);letzte=v}}
 
 async function wechsle(id){if(id===S.aktiv)return true;if(!await verwerfenOk())return false;const r=S.rezepte.find(x=>x.id===id);if(!r)return false;S.aktiv=id;S.entwurf=norm(r);ui.hefeEdit=false;ui.schritteEdit=false;sichern();return true}
