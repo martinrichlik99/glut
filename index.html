@@ -348,7 +348,7 @@ function vZeitplan(){const e=S.entwurf;
  +'<ul class="tl" id="tl" style="padding:0">'+tlHtml()+'</ul>'
  +'<div class="hinweis">'+ic('info')+'<span>Die Zeiten rechnen sich neu, sobald du Backzeit oder Rezept änderst.</span></div>'}
 
-const KATS=['Vorspeise','Hauptspeise','Beilage','Soßen','Dessert','Fitness-Süßes','Fitness-Meal','Brot & Gebäck'],KKEY='glut.koch.v1',KV=13;
+const KATS=['Vorspeise','Hauptspeise','Beilage','Soßen','Dessert','Fitness-Süßes','Fitness-Meal','Brot & Gebäck'],KKEY='glut.koch.v1',KV=14;
 const FORM={url:'https://docs.google.com/forms/d/e/1FAIpQLSdDrxaH22LW1rlp9JMPjmnM3XtTmN9f8aqiyLHiVVr_v8nb7w/formResponse',e:{Vorspeise:'entry.1819340727',Hauptspeise:'entry.1385008911',Beilage:'entry.124916902',Soßen:'entry.47142111',Dessert:'entry.1329975','Fitness-Süßes':'entry.1152491036','Fitness-Meal':'entry.679013309','Brot & Gebäck':'entry.2036364264'}};
 const code=u=>(String(u).match(/instagram\.com\/(?:[\w.]+\/)?(?:p|reel|reels|tv)\/([\w-]+)/i)||[])[1];
 const VITELLO={id:'vitello',name:'Vitello Tonnato',kat:'Vorspeise',bild:'',video:'https://www.instagram.com/p/DdZW3dwtHdz/',geaendertAm:0,
@@ -438,6 +438,7 @@ function ladenK(){let d=null;try{d=JSON.parse(localStorage.getItem(KKEY))}catch(
  if(alt)[[2,GANS],[3,MAYO],[4,CHIA],[5,TALER],[6,BUTTER],[7,COTTAGE],[9,BROWNIE],[9,PKUCHEN],...NOTIZEN.map(n=>[10,n]),...NEU.map(n=>[11,n]),...NEU13.map(n=>[13,n])].forEach(([v,n])=>{if(!(d.v>=v)&&!l.some(r=>r&&r.id===n.id))l.push(n)});
  if(alt&&!(d.v>=8))[TALER,BUTTER,COTTAGE].forEach(n=>{const i=l.findIndex(r=>r&&r.id===n.id&&!r.geaendertAm);if(i>=0)l[i]=n});
  if(alt&&!(d.v>=12)){l.forEach(r=>{if(r&&r.kat==='Snack')r.kat='Fitness-Meal'});(d.links||[]).forEach(x=>{if(x&&x.k==='Snack')x.k='Fitness-Meal'})}
+ if(alt&&!(d.v>=14)){l.forEach(r=>{if(r&&r.kat==='Fitness')r.kat='Fitness-Meal'});(d.links||[]).forEach(x=>{if(x&&x.k==='Fitness')x.k='Fitness-Meal'});if(Array.isArray(d.kats))d.kats=d.kats.filter(k=>k!=='Fitness')}
  const rez=l.map(normK);return{v:KV,rezepte:rez,kats:katsAus(Array.isArray(d.kats)?d.kats.filter(k=>k!=='Snack'):d.kats,rez),links:(Array.isArray(d.links)?d.links:[]).filter(x=>x&&FORM.e[x.k]&&code(x.u)&&!rez.some(r=>code(r.video)===code(x.u))).map(x=>({k:x.k,u:String(x.u).slice(0,500)}))}}
 function sichernK(){try{localStorage.setItem(KKEY,JSON.stringify(K))}catch(e){toast('Speichern fehlgeschlagen – Speicher voll? Kleineres Bild oder Rezepte löschen')}}
 const alleKats=()=>[...KATS,...K.kats];
