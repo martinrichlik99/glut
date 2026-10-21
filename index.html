@@ -193,6 +193,44 @@ dialog input[hidden]{display:none}
 .fld option{color:#000}
 .bb{display:flex;gap:10px}
 .bb button{flex:1;height:46px;border-radius:14px;background:var(--s2);font-weight:600}
+.ke{display:grid;place-items:center;background:var(--pill);font-size:28px;line-height:1;flex:none;overflow:hidden}
+.ke img{width:100%;height:100%;object-fit:cover;display:block}
+.kgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.kc{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:16px;border-radius:20px;background:var(--s1);border:1px solid var(--ln);text-align:left}
+.kc.leer{opacity:.55}
+.kc .ke{width:52px;height:52px;border-radius:16px;margin-bottom:10px}
+.kc b{font-size:17px;line-height:1.2}
+.rc{display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:10px 14px 10px 10px;margin-bottom:10px;border-radius:20px;background:var(--s1);border:1px solid var(--ln)}
+.rc .ke{width:64px;height:64px;border-radius:16px;font-size:32px}
+.rc .rt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.rc b{font-size:16px;line-height:1.25}
+.rc>svg.i{flex:none;color:var(--mu);transform:rotate(-90deg)}
+.rc i{display:flex;color:var(--pt)}
+.rc i svg.i{width:16px;height:16px}
+.hero.em{display:grid;place-items:center;font-size:84px;background:linear-gradient(135deg,var(--pill),var(--s2))}
+.nw{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:8px;margin:0 0 8px}
+.nw div{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 4px;border-radius:16px;background:var(--s1);border:1px solid var(--ln)}
+.nw b{font-size:19px;line-height:1.15;white-space:nowrap}
+.nw small{font-size:10px;text-transform:uppercase;letter-spacing:.05em;font-weight:700;text-align:center}
+.nw .nk{background:var(--pr);color:var(--on);border-color:transparent}
+.nw .nk small{color:var(--on);opacity:.85}
+.nwh{margin:0 0 16px;color:var(--mu);font-size:12px}
+.zl{list-style:none;margin:0;padding:0}
+.zl .kh{padding:16px 0 6px;font:800 13px var(--hd);letter-spacing:.06em;text-transform:uppercase;color:var(--pt)}
+.zl .kh:first-child{padding-top:0}
+.zi{display:grid;grid-template-columns:40px 1fr auto;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--ln)}
+.zi:last-child,.zi:has(+.kh){border-bottom:0}
+.zi .ke{width:40px;height:40px;border-radius:12px;font-size:21px}
+.zi .zm{font:800 15px var(--hd);color:var(--mu);text-align:right;white-space:nowrap}
+.zn{line-height:1.3}
+.zn small{display:block;font-size:13px}
+.pst{display:flex;align-items:center;justify-content:space-between;margin:0 0 12px;padding:8px 8px 8px 14px;border-radius:16px;background:var(--s2);font-weight:600}
+.pst .rb{width:38px;height:38px}
+.pst b{min-width:28px;text-align:center;font:800 18px var(--hd)}
+.hinweis{margin:10px 0 0}
+.nwf{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px}
+.nwf .fld{margin:0}
+.nwf input{padding:0 4px;text-align:center}
 @media (prefers-reduced-motion:reduce){#toast{transition:none}}
 </style>
 </head>
@@ -264,7 +302,7 @@ function zahl(v,def,min,max){v=Number(v);return isFinite(v)?Math.min(max,Math.ma
 function norm(r){r=r||{};return{id:/^[\w-]{1,40}$/.test(r.id)?r.id:neueId(),name:String(r.name||'Rezept').slice(0,60),pizzen:Math.round(zahl(r.pizzen,6,1,99)),gewicht:zahl(r.gewicht,292,50,600),hydration:zahl(r.hydration,68,40,100),salz:zahl(r.salz,3,0,6),biga:zahl(r.biga,0,0,72),bigaMehl:zahl(r.bigaMehl,100,10,100),bigaWasser:zahl(r.bigaWasser,47.6,30,70),bigaHefe:zahl(r.bigaHefe,100,0,100),stock:zahl(r.stock,0.5,0,12),stunden:zahl(r.stunden,46,0,120),stueck:zahl(r.stueck,1,0,12),hefeart:r.hefeart==='trocken'?'trocken':'frisch',hefeManuell:r.hefeManuell==null?null:zahl(r.hefeManuell,0.25,0,5),schritte:String(r.schritte||'').slice(0,4000),geaendertAm:Number(r.geaendertAm)||0}}
 
 const KEY='glut.v1';
-let S,K,ui={hefeEdit:false,schritteAuf:true,schritteEdit:false,menuId:null,kochId:null,kochKat:null,kform:null},letzte='';
+let S,K,ui={hefeEdit:false,schritteAuf:true,schritteEdit:false,menuId:null,kochId:null,kochKat:null,kform:null,kp:null},letzte='';
 function laden(){let d=null;try{d=JSON.parse(localStorage.getItem(KEY))}catch(e){}
  d=d&&typeof d==='object'?d:{};
  if(!(d.v>=2)&&Array.isArray(d.rezepte)){const i=d.rezepte.findIndex(r=>r&&r.id==='grundrezept'&&!r.geaendertAm);
@@ -283,14 +321,15 @@ function zeige(d,cb){let f=false;const fm=d.querySelector('form');const ende=v=>
 function fragen(t,p,o){o=o||{};return new Promise(res=>{const d=$('#dlg'),i=$('#dI');$('#dT').textContent=t;$('#dP').textContent=p||'';i.hidden=o.eingabe===undefined;i.value=o.eingabe||'';$('#dOk').textContent=o.ok||'OK';zeige(d,v=>res(v==='ok'?(o.eingabe===undefined?true:(i.value.trim()||o.eingabe)):null));if(!i.hidden)i.select()})}
 const verwerfenOk=async()=>!geaendert()||fragen('Änderungen verwerfen?','Die Änderungen an „'+S.entwurf.name+'“ sind nicht gespeichert.',{ok:'Verwerfen'});
 
-const kopf=()=>'<header class="top"><div class="logo">'+ic('flame')+'<span>GLUT</span></div><span style="display:flex;gap:8px">'+(ansicht()==='kochen'?'<a class="icbtn" href="#start" aria-label="Zur Startseite">'+ic('slice')+'</a>':'')+'<button class="icbtn" data-act="theme" aria-label="'+(S.theme==='dark'?'Zum hellen Design wechseln':'Zum dunklen Design wechseln')+'">'+ic(S.theme==='dark'?'moon':'sun')+'</button></span></header>';
+const kopf=()=>'<header class="top"><div class="logo">'+ic('flame')+'<span>GLUT</span></div><span style="display:flex;gap:8px">'+(['kochen','fitness'].includes(ansicht())?'<a class="icbtn" href="#start" aria-label="Zur Startseite">'+ic('slice')+'</a>':'')+'<button class="icbtn" data-act="theme" aria-label="'+(S.theme==='dark'?'Zum hellen Design wechseln':'Zum dunklen Design wechseln')+'">'+ic(S.theme==='dark'?'moon':'sun')+'</button></span></header>';
 const hydr=r=>'<span class="pill">'+nfm(1).format(r.hydration)+' % Hydration</span>';
 
 function vStart(){const h=new Date().getHours();const gruss=h<5?'Gute Nacht':h<11?'Guten Morgen':h<18?'Guten Tag':'Guten Abend';
  const sperre=(n,t,bild)=>'<div class="kat off" style="--bild:url(img/'+bild+'.jpg)"><span class="tag">'+ic('lock')+'Bald</span><b>'+n+'</b><small>'+t+'</small></div>';
  return kopf()+'<p class="gruss"><i></i>'+gruss+'</p><h1 class="hl">Teig, Glut &amp; <em>Genuss</em></h1>'
  +'<a class="kat on" href="#rechner" style="--bild:url(img/pizza.jpg)"><span class="tag" aria-hidden="true">'+ic('arrow')+'</span><b>Pizza</b><small>Teig, Gare, perfekter Rand</small></a>'
- +sperre('Grillen','Glut, Marinaden, Temperaturen','grillen')+'<a class="kat on" href="#kochen" style="--bild:url(img/kochen.jpg)"><span class="tag" aria-hidden="true">'+ic('arrow')+'</span><b>Kochen</b><small>Alltag und Lieblingsgerichte</small></a>'}
+ +sperre('Grillen','Glut, Marinaden, Temperaturen','grillen')+'<a class="kat on" href="#kochen" style="--bild:url(img/kochen.jpg)"><span class="tag" aria-hidden="true">'+ic('arrow')+'</span><b>Kochen</b><small>Alltag und Lieblingsgerichte</small></a>'
+ +'<a class="kat on" href="#fitness" style="--bild:url(img/fitness.jpg)"><span class="tag" aria-hidden="true">'+ic('arrow')+'</span><b>Fitness</b><small>Protein, Meal Prep, leichte Rezepte</small></a>'}
 
 function step(f,label,sub,unit){
  return '<div class="row"><div class="lab"><b>'+label+'</b><small>'+sub+'</small></div><div class="stp"><button class="rb" data-act="step" data-f="'+f+'" data-d="-1" aria-label="'+label+' verringern">'+ic('minus')+'</button><label class="val"><input inputmode="decimal" data-f="'+f+'" value="'+anz(f)+'" aria-label="'+label+'"><small>'+unit+'</small></label><button class="rb p" data-act="step" data-f="'+f+'" data-d="1" aria-label="'+label+' erhöhen">'+ic('plus')+'</button></div></div>'}
@@ -441,8 +480,15 @@ sn('zwiebelkuchenprotein','High-Protein-Zwiebelkuchen','Fitness-Meal',['2 Zwiebe
 sn('kuerbisfrittata','Kürbis-Frittata mit Kartoffelboden','Fitness-Meal',['Für eine Springform (24 cm):','700 g gekochte Kartoffeln','ca. ½ kleiner Hokkaido (350–400 g)','6 Eier','ca. 300 g Skyr natur','150 g körniger Frischkäse','1 Block Feta oder Hirtenkäse (150–200 g)','etwas Olivenöl','Kürbiskerne als Topping','Salz, Pfeffer, Paprikapulver, Muskatnuss, optional Chiliflocken'],['1. Backofen auf 180 °C Umluft vorheizen. Springform mit Backpapier auslegen und leicht mit Olivenöl besprühen oder bepinseln.','2. Gekochte Kartoffeln hineingeben und mit einem Glas zu Boden und Rand zerdrücken. Den Rand gut hochziehen, die Füllung ist großzügig. Kartoffeln oben mit etwas Olivenöl besprühen oder bepinseln.','3. Hokkaido entkernen und grob raspeln oder in der Küchenmaschine klein zerkleinern, damit er gar wird.','4. Eier, Skyr, körnigen Frischkäse und Gewürze mit dem Schneebesen verrühren. Kürbis unterheben, Feta hineinbröseln und nochmal vermengen.','5. Masse auf den Kartoffelboden geben, glatt streichen und mit Kürbiskernen bestreuen.','6. Bei 180 °C Umluft ca. 40–50 Minuten backen, bis die Füllung auch in der Mitte gestockt ist.','7. In der Form auskühlen lassen, dann wird sie fest und lässt sich gut schneiden. Schmeckt aufgewärmt oder kalt zu Salat.','Quelle: balancebybec (Instagram)'],'https://www.instagram.com/reel/Dd_rc6jNvlq/'),
 sn('blumenkohlsuppe','Käse-Blumenkohl-Suppe','Suppe',['Für 2 Portionen:','450 g Blumenkohl (auch TK)','300 ml Gemüsebrühe','75 g Frischkäse (im Original Buko India)','75 g Streukäse light','10 g Zwiebel','5 g Ghee oder Öl zum Anbraten','Salz, Pfeffer, etwas Paprikapulver','nach Belieben Kräuter'],['1. Zwiebel anbraten.','2. Blumenkohl und Gemüsebrühe dazugeben, ca. 15 Minuten weich kochen.','3. Pürieren, vom Herd nehmen und die restlichen Zutaten unterheben.','','Passt dazu laut Beschreibung: etwas Sauerteigbrot und angeröstete Salatkerne.','Nährwerte pro Portion (ohne Toppings) laut Beschreibung: 253 kcal, 18 g Eiweiß, 11 g Kohlenhydrate, 15 g Fett.','Quelle: fruehlingszwiebel_ (Instagram)'],'https://www.instagram.com/reel/DeuX7_uNhHN/')
 ];
+const FKATS=['Fitness-Süßes','Fitness-Meal'],KATI={Vorspeise:'🥗',Suppe:'🍲',Hauptspeise:'🍽️',Beilage:'🥔','Soßen':'🥫',Dessert:'🍰','Fitness-Süßes':'🍓','Fitness-Meal':'💪','Brot & Gebäck':'🥖'};
+const IK=[[/g[äa]ns/i,'🦆'],[/zwiebelkuchen/i,'🧅'],[/suppe/i,'🍲'],[/oktopus|kraken/i,'🐙'],[/vitello|schnitzel|rostbraten|roastbeef|braten|filet|geschnetzel/i,'🥩'],[/hähnchen|spieße/i,'🍗'],[/thunfisch/i,'🐟'],[/pizza/i,'🍕'],[/bolognese/i,'🍝'],[/brot|brötchen|buns|toast/i,'🥖'],[/hörnchen/i,'🥐'],[/kuchen|brownie|torte/i,'🍰'],[/kaiserschmarrn/i,'🥞'],[/grießbrei|pudding/i,'🍮'],[/riegel/i,'🍫'],[/wrap|taco/i,'🌮'],[/frikadell|laberl|taler/i,'🧆'],[/frittata/i,'🍳'],[/knödel/i,'🥟'],[/kartoffel|erdäpfel|pommes/i,'🥔'],[/zucchini|gurke/i,'🥒'],[/kohl|spinat/i,'🥬'],[/mayo|sauce|soße|marinade|dressing|paste|jam/i,'🥫']];
+const ikon=r=>r.icon||(IK.find(([x])=>x.test(r.name))||[])[1]||KATI[r.kat]||'🍴';
+const ZI=[[/(^|[^a-zäöüß])(ei|eier|eigelb|eiklar)([^a-zäöüß]|$)/i,'🥚'],[/milch|rahm|sahne|obers|joghurt|skyr|quark|topfen|hüttenkäse|cottage|frischkäse/i,'🥛'],[/käse|gouda|parmesan|feta|roquefort/i,'🧀'],[/butter|ghee/i,'🧈'],[/öl\b|olivenöl|knoblauchöl/i,'🫒'],[/zwiebel|schalotte|lauch/i,'🧅'],[/knoblauch/i,'🧄'],[/kartoffel|erdäpfel/i,'🥔'],[/tomate|ketchup/i,'🍅'],[/karotte|möhre/i,'🥕'],[/gurke|zucchini/i,'🥒'],[/paprika|chili/i,'🌶️'],[/spinat|kohl|salat|sellerie/i,'🥬'],[/petersilie|schnittlauch|kräuter|basilikum|beifuß|thymian|rosmarin|oregano|estragon|koriander|salbei|lorbeer/i,'🌿'],[/zitron|limette/i,'🍋'],[/orange/i,'🍊'],[/apfel/i,'🍎'],[/beere/i,'🫐'],[/honig/i,'🍯'],[/zucker|ahorn|agave|süße|süßungsmittel|puder/i,'🍬'],[/kakao|schoko/i,'🍫'],[/mehl|grieß|haferflocken|semmelbrösel|panko|paniermehl|speisestärke|mondamin|backpulver|puddingpulver|hefe|germ/i,'🌾'],[/salz|pfeffer|kümmel|muskat|zimt|gewürz|piment|wacholder|curry|pulver/i,'🧂'],[/thunfisch|sardelle|fisch|kraken|oktopus/i,'🐟'],[/schinken|speck|cabanossi|prosciutto|fleisch|schwein|rind|kalb|hähnchen|hack|faschiert|braten|ried|beiried|roastbeef|gans|innereien/i,'🥩'],[/wein|bier|brandy|whisky/i,'🍷'],[/nuss|nüsse|mandel|sesam|chia|leinsamen|kokos/i,'🥜'],[/linsen|bohnen|mais/i,'🫘'],[/brühe|suppe|fond|saft/i,'🍲'],[/wasser/i,'💧'],[/soja|sauce|soße|essig|senf/i,'🥫']];
+const zik=n=>(ZI.find(([x])=>x.test(n))||[])[1]||'🥄';
+const ZM=/^((?:ca\.\s*)?[\d½¼¾⅓⅔⅛][\d½¼¾⅓⅔⅛.,\/–-]*(?:\s*(?:kg|ml|dag|Tassen|Tasse|Packung|Päckchen|Pkg\.|Scoops?|Prisen?|Zweige?|Scheiben?|Stangen?|Stück|Dose|Becher|Bund|Handvoll|Blatt|Block|Liter|EL|TL|g|l)(?=\s))?)\s+(.+)$/i;
+const NW={gans:[8,850,45,12,70],mayo:[10,36,2,0,3],chia:[2,255,17,17,11],taler:[2,330,21,40,8],cottage:[2,335,44,7,13],brownie:[4,130,12,10,4],pkuchen:[2,300,38,27,4],bbq:[10,75,0,19,0],biersauce:[10,100,0,18,3],bigmac:[8,175,1,2,19],braunesauce:[4,100,1,8,6],chilisauce:[10,87,1,3,6],honigsenf:[60,155,0,4,15],knoblauchpaste:[120,12,0,1,1],marinadehaehnchen:[4,140,1,5,10],marinadeerdaepfel:[4,175,0,3,18],rotwein:[4,75,1,5,3],steakmarinade:[8,130,1,2,12],a1steaksauce:[8,55,0,13,0],tzatziki:[4,180,8,7,12],octopus:[4,280,34,2,13],honigfilet:[6,275,38,12,8],geschnetzeltes:[4,405,48,8,20],carbonara:[2,595,32,35,35],kokosspiesse:[3,265,39,7,8],linsenlaberl:[4,355,18,45,11],linsenwrap:[5,110,7,18,1],linsenbolognese:[4,305,14,44,8],roastbeefmarcher:[4,680,56,56,22],roastbeefgrill:[4,435,64,2,18],rosenkohl:[4,730,41,12,54],rinderbraten:[4,360,49,10,15],zwiebelrostbraten:[4,620,48,21,40],schuettelpizza:[2,510,34,49,18],frittaten:[4,280,7,16,19],cremespinat:[4,160,7,5,10],kohl:[6,125,5,7,8],huettenkaesetaler:[2,435,27,28,22],zucchinipommes:[2,140,9,12,6],thunfischgurke:[2,360,27,9,24],proteinriegel:[8,225,10,15,13],griessbrei:[1,470,55,49,6],dinkelbrot:[12,150,6,30,1],briochebuns:[8,325,9,47,10],proteinbroetchen:[5,172,15,8,8],pizzateig:[4,550,13,94,10],skyrkuchen:[8,97,10,7,3],chiatoast:[2,180,14,3,10],quarkbroetchen:[10,120,8,17,2],kidneyfrikadellen:[3,210,10,33,2],schinkenhoernchen:[6,280,28,37,5],kaiserschmarrnprotein:[1,320,28,36,6],eiweissgriessbrei:[1,380,33,48,4],kaesetaco:[1,175,17,8,7],zwiebelkuchenprotein:[2,345,37,14,15],kuerbisfrittata:[6,295,20,25,11],blumenkohlsuppe:[2,300,20,8,20]};
 const katsAus=(a,rez)=>[...(Array.isArray(a)?a:[]),...rez.map(r=>r.kat)].map(k=>String(k).trim().slice(0,30)).filter((k,i,x)=>k&&!KATS.includes(k)&&x.indexOf(k)===i).slice(0,20);
-function normK(r){r=r||{};const b=String(r.bild||''),v=String(r.video||'').trim();return{id:typeof r.id==='string'&&/^[\w-]{1,40}$/.test(r.id)?r.id:neueId(),name:String(r.name||'Rezept').slice(0,80),kat:String(r.kat||'Hauptspeise').trim().slice(0,30)||'Hauptspeise',bild:b.length<400000&&/^data:image\/jpeg;base64,[\w+/=]+$/.test(b)?b:'',video:/^https?:\/\/\S{1,500}$/i.test(v)?v:'',zutaten:String(r.zutaten||'').slice(0,4000),text:String(r.text||'').slice(0,8000),geaendertAm:Number(r.geaendertAm)||0}}
+function normK(r){r=r||{};const id=typeof r.id==='string'&&/^[\w-]{1,40}$/.test(r.id)?r.id:neueId(),w=NW[id]||[],n=(v,d,m)=>zahl(v||d,0,0,m),b=String(r.bild||''),v=String(r.video||'').trim();return{id,name:String(r.name||'Rezept').slice(0,80),kat:String(r.kat||'Hauptspeise').trim().slice(0,30)||'Hauptspeise',bild:b.length<400000&&/^data:image\/jpeg;base64,[\w+/=]+$/.test(b)?b:'',video:/^https?:\/\/\S{1,500}$/i.test(v)?v:'',zutaten:String(r.zutaten||'').slice(0,4000),text:String(r.text||'').slice(0,8000),portionen:Math.round(n(r.portionen,w[0],99)),kcal:Math.round(n(r.kcal,w[1],9999)),e:n(r.e,w[2],999),k:n(r.k,w[3],999),f:n(r.f,w[4],999),icon:String(r.icon||'').slice(0,8),geaendertAm:Number(r.geaendertAm)||0}}
 function ladenK(){let d=null;try{d=JSON.parse(localStorage.getItem(KKEY))}catch(e){}
  d=d&&typeof d==='object'?d:{};const alt=Array.isArray(d.rezepte),l=alt?d.rezepte:[VITELLO,GANS,MAYO,CHIA,TALER,BUTTER,COTTAGE,BROWNIE,PKUCHEN,...NOTIZEN,...NEU,...NEU13,...NEU16];
  if(alt)[[2,GANS],[3,MAYO],[4,CHIA],[5,TALER],[6,BUTTER],[7,COTTAGE],[9,BROWNIE],[9,PKUCHEN],...NOTIZEN.map(n=>[10,n]),...NEU.map(n=>[11,n]),...NEU13.map(n=>[13,n]),...NEU16.map(n=>[16,n])].forEach(([v,n])=>{if(!(d.v>=v)&&!l.some(r=>r&&r.id===n.id))l.push(n)});
@@ -456,19 +502,32 @@ const katOpts=()=>alleKats().map(k=>'<option'+(k===ui.kform.kat?' selected':'')+
 const prevHtml=()=>ui.kform.bild?'<img src="'+esc(ui.kform.bild)+'" alt="Vorschau">':'<i class="ph">'+ic('cook')+'</i>';
 function verkleinern(file){return new Promise((ok,nein)=>{const u=URL.createObjectURL(file),im=new Image();im.onload=()=>{const s=Math.min(1,800/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);ok(c.toDataURL('image/jpeg',.75))};im.onerror=()=>{URL.revokeObjectURL(u);nein()};im.src=u})}
 
-function vKochen(){const n=K.rezepte.length;
- return kopf()+'<div class="titel"><div><h1>Kochen</h1><small>'+n+(n===1?' Rezept':' Rezepte')+'</small></div><button class="fab" data-act="kNeu" aria-label="Neues Kochrezept">'+ic('plus')+'</button></div>'
- +alleKats().map(k=>{const c=K.rezepte.filter(r=>r.kat===k).length;return '<button class="kcat'+(c?'':' leer')+'" data-act="kKat" data-k="'+esc(k)+'"><b>'+esc(k)+'</b><small>'+c+(c===1?' Rezept':' Rezepte')+'</small>'+ic('chev')+'</button>'}).join('')}
-function vKat(){const k=ui.kochKat;if(k==null)return vKochen();const l=K.rezepte.filter(r=>r.kat===k).sort((x,y)=>x.name.localeCompare(y.name,'de'));
- return '<header class="top rtop"><a class="icbtn" href="#kochen" aria-label="Zurück zu den Kategorien">'+ic('back')+'</a><h1>'+esc(k)+'</h1><button class="icbtn" data-act="kNeu" aria-label="Neues Rezept in '+esc(k)+'">'+ic('plus')+'</button></header>'
+function vBereich(fit){const l=fit?FKATS:alleKats().filter(k=>!FKATS.includes(k)),n=K.rezepte.filter(r=>l.includes(r.kat)).length;
+ return kopf()+'<div class="titel"><div><h1>'+(fit?'Fitness':'Kochen')+'</h1><small>'+n+(n===1?' Rezept':' Rezepte')+'</small></div><button class="fab" data-act="kNeu" aria-label="Neues Rezept">'+ic('plus')+'</button></div>'
+ +'<div class="kgrid">'+l.map(k=>{const c=K.rezepte.filter(r=>r.kat===k).length;return '<button class="kc'+(c?'':' leer')+'" data-act="kKat" data-k="'+esc(k)+'"><span class="ke" aria-hidden="true">'+(KATI[k]||'🍴')+'</span><b>'+esc(k)+'</b><small>'+c+(c===1?' Rezept':' Rezepte')+'</small></button>'}).join('')+'</div>'}
+const vKochen=()=>vBereich(false),vFitness=()=>vBereich(true);
+const zutatenAnz=r=>r.zutaten.split('\n').filter(x=>x.trim()&&!x.trim().endsWith(':')).length;
+const thumb=r=>'<span class="ke" aria-hidden="true">'+(r.bild?'<img src="'+esc(r.bild)+'" alt="">':ikon(r))+'</span>';
+function vKat(){const k=ui.kochKat;if(k==null)return vKochen();const l=K.rezepte.filter(r=>r.kat===k).sort((x,y)=>x.name.localeCompare(y.name,'de')),zur=FKATS.includes(k)?'#fitness':'#kochen';
+ return '<header class="top rtop"><a class="icbtn" href="'+zur+'" aria-label="Zurück zu den Kategorien">'+ic('back')+'</a><h1>'+esc(k)+'</h1><button class="icbtn" data-act="kNeu" aria-label="Neues Rezept in '+esc(k)+'">'+ic('plus')+'</button></header>'
  +(FORM.e[k]?'<button class="kzl lnk" data-act="kLink" data-k="'+esc(k)+'"><b>＋ Link einfügen</b></button>'+K.links.filter(x=>x.k===k).map(x=>'<div class="kzl wart"><b>'+esc(code(x.u))+'</b><small>wartet auf Import</small></div>').join(''):'')
- +(l.length?l.map(r=>'<button class="kzl" data-act="kOeffne" data-id="'+esc(r.id)+'"><b>'+esc(r.name)+'</b>'+(r.video?'<i aria-label="mit Video">'+ic('play')+'</i>':'')+ic('chev')+'</button>').join(''):'<p class="schr-leer">Noch keine Rezepte in dieser Kategorie.</p>')}
-function vKoch(){const r=K.rezepte.find(x=>x.id===ui.kochId);if(!r)return vKochen();const zl=r.zutaten.split('\n').map(x=>x.trim());
+ +(l.length?l.map(r=>'<button class="rc" data-act="kOeffne" data-id="'+esc(r.id)+'">'+thumb(r)+'<span class="rt"><b>'+esc(r.name)+'</b><small>'+(r.kcal?'🔥 '+nfm(0).format(r.kcal)+' kcal'+(r.portionen>1?' pro Portion':'')+' · ':'')+zutatenAnz(r)+' Zutaten</small></span>'+(r.video?'<i aria-label="mit Video">'+ic('play')+'</i>':'')+ic('chev')+'</button>').join(''):'<p class="schr-leer">Noch keine Rezepte in dieser Kategorie.</p>')}
+const nwHtml=r=>{if(!r.kcal)return '';const g=n=>nfm(0).format(n);
+ return '<section class="nw" aria-label="Nährwerte pro Portion"><div class="nk"><b>'+g(r.kcal)+'</b><small>kcal / Portion</small></div><div><b>'+g(r.e)+' g</b><small>Eiweiß</small></div><div><b>'+g(r.k)+' g</b><small>Kohlenh.</small></div><div><b>'+g(r.f)+' g</b><small>Fett</small></div></section>'
+ +'<p class="nwh">'+(r.portionen?r.portionen+(r.portionen===1?' Portion':' Portionen')+', gesamt ca. '+g(r.kcal*r.portionen)+' kcal · ':'')+'grobe Schätzung aus den Zutaten mit Mengenangabe</p>'};
+const ZB={'½':.5,'¼':.25,'¾':.75,'⅓':1/3,'⅔':2/3,'⅛':.125};
+const skal=(a,f)=>f===1?a:a.replace(/(\d+(?:,\d+)?)?([½¼¾⅓⅔⅛])?/g,(t,n,b)=>t?nfm(2).format(((n?parse(n):0)+(b?ZB[b]:0))*f):t);
+const zutatHtml=f=>x=>{if(x.endsWith(':'))return f!==1&&/^(Für|Ergibt)/.test(x)?'':'<li class="kh">'+esc(x.slice(0,-1))+'</li>';const m=x.match(ZM),n=m?m[2]:x,i=n.search(/,|\(/),h=i>0?n.slice(0,i).trim():n,u=i>0?n.slice(i).replace(/^[,(]\s*/,'').replace(/\)$/,''):'';
+ return '<li class="zi"><span class="ke" aria-hidden="true">'+zik(n)+'</span><span class="zn">'+esc(h)+(u?'<small>'+esc(u)+'</small>':'')+'</span><b class="zm">'+(m?esc(skal(m[1],f)):'')+'</b></li>'};
+function textHtml(t){const l=t.split('\n').map(x=>x.trim()).filter(Boolean),st=l.filter(x=>/^\d+\.\s/.test(x)),no=l.filter(x=>!/^\d+\.\s/.test(x));
+ return (st.length?'<ol class="schr">'+st.map(x=>'<li>'+esc(x.replace(/^\d+\.\s*/,''))+'</li>').join('')+'</ol>':'')+no.map(x=>'<p class="'+(st.length?'hinweis':'kbs')+'">'+esc(x)+'</p>').join('')||'<p class="schr-leer">Noch keine Beschreibung.</p>'}
+function vKoch(){const r=K.rezepte.find(x=>x.id===ui.kochId);if(!r)return vKochen();const zl=r.zutaten.split('\n').map(x=>x.trim()).filter(Boolean),pk=ui.kp||r.portionen,fk=r.portionen?pk/r.portionen:1;
  return '<header class="top rtop"><a class="icbtn" href="#kat" aria-label="Zurück zur Kategorie">'+ic('back')+'</a><h1>'+esc(r.kat)+'</h1><button class="icbtn" data-act="kEdit" aria-label="Rezept bearbeiten">'+ic('pencil')+'</button></header>'
- +(r.bild?'<div class="hero"><img src="'+esc(r.bild)+'" alt=""></div>':'')
+ +(r.bild?'<div class="hero"><img src="'+esc(r.bild)+'" alt=""></div>':'<div class="hero em" aria-hidden="true">'+ikon(r)+'</div>')
  +'<div class="ktz"><h1 class="kt">'+esc(r.name)+'</h1>'+(r.video?'<a class="icbtn vid" href="'+esc(r.video)+'" target="_blank" rel="noopener noreferrer" aria-label="Video ansehen">'+ic('play')+'</a>':'')+'</div>'
- +'<section class="card"><h2>Zutaten</h2>'+(zl.some(Boolean)?'<ul class="kz">'+zl.filter(Boolean).map(x=>x.endsWith(':')?'<li class="kh">'+esc(x.slice(0,-1))+'</li>':'<li>'+esc(x)+'</li>').join('')+'</ul>':'<p class="schr-leer">Keine Zutaten eingetragen.</p>')+'</section>'
- +'<section class="card"><h2>Beschreibung</h2><p class="kbs">'+esc(r.text||'Noch keine Beschreibung.')+'</p></section>'
+ +nwHtml(r)
+ +'<section class="card"><h2>Zutaten<small>'+zl.filter(x=>!x.endsWith(':')).length+' Positionen</small></h2>'+(r.portionen&&r.portionen<=24?'<div class="pst"><span>Portionen</span><span class="stp"><button class="rb" data-act="kpm" data-d="-1" aria-label="Eine Portion weniger">'+ic('minus')+'</button><b>'+pk+'</b><button class="rb p" data-act="kpm" data-d="1" aria-label="Eine Portion mehr">'+ic('plus')+'</button></span></div>':'')+(zl.length?'<ul class="zl">'+zl.map(zutatHtml(fk)).join('')+'</ul>':'<p class="schr-leer">Keine Zutaten eingetragen.</p>')+'</section>'
+ +'<section class="card"><h2>Zubereitung</h2>'+textHtml(r.text)+'</section>'
  +'<button class="btn2 gef" data-act="kDel">'+ic('trash')+'Rezept löschen</button>'}
 function vKForm(){const f=ui.kform;if(!f)return vKochen();
  return '<header class="top rtop"><a class="icbtn" href="'+f.zurueck+'" aria-label="Abbrechen">'+ic('back')+'</a><h1>'+(f.id?'Rezept bearbeiten':'Neues Rezept')+'</h1><span></span></header>'
@@ -477,10 +536,11 @@ function vKForm(){const f=ui.kform;if(!f)return vKochen();
  +'<div class="fld"><span>Bild</span><div class="hero kl" id="kPrev">'+prevHtml()+'</div><div class="bb"><button type="button" data-act="kBild">Foto wählen</button><button type="button" data-act="kBildWeg">Entfernen</button></div></div>'
  +'<label class="fld"><span>Zutaten (eine pro Zeile)</span><textarea id="kZ" rows="8" placeholder="130 g Thunfisch">'+esc(f.zutaten)+'</textarea></label>'
  +'<label class="fld"><span>Beschreibung</span><textarea id="kT" rows="10" placeholder="Schritte oder Notizen">'+esc(f.text)+'</textarea></label>'
+ +'<div class="nwf"><label class="fld"><span>Port.</span><input id="kP" inputmode="decimal" value="'+(f.portionen||'')+'"></label><label class="fld"><span>kcal</span><input id="kC" inputmode="decimal" value="'+(f.kcal||'')+'"></label><label class="fld"><span>Eiw. g</span><input id="kE" inputmode="decimal" value="'+(f.e||'')+'"></label><label class="fld"><span>KH g</span><input id="kK" inputmode="decimal" value="'+(f.k||'')+'"></label><label class="fld"><span>Fett g</span><input id="kF" inputmode="decimal" value="'+(f.f||'')+'"></label></div>'
  +'<label class="fld"><span>Video-Link (optional)</span><input id="kV" type="url" inputmode="url" autocomplete="off" placeholder="https://" value="'+esc(f.video)+'"></label></section>'
  +'<button class="btn" data-act="kSave">'+ic('mark')+'Rezept speichern</button>'}
 
-const ROUTEN={start:vStart,rechner:vRechner,rezepte:vRezepte,zeitplan:vZeitplan,kochen:vKochen,kat:vKat,koch:vKoch,kform:vKForm};
+const ROUTEN={start:vStart,rechner:vRechner,rezepte:vRezepte,zeitplan:vZeitplan,kochen:vKochen,fitness:vFitness,kat:vKat,koch:vKoch,kform:vKForm};
 const NAV=[['start','slice','Start'],['rezepte','book','Rezepte'],['zeitplan','clock','Zeitplan']];
 const ansicht=()=>{const h=location.hash.slice(1);return ROUTEN[h]?h:'start'};
 function render(){const v=ansicht();document.documentElement.dataset.theme=S.theme;
@@ -511,8 +571,9 @@ const AKT={
  export(){exportieren()},
  import(){$('#imp').click()},
  kKat(b){ui.kochKat=b.dataset.k;location.hash='#kat'},
- kNeu(){const k=location.hash==='#kat'&&ui.kochKat!=null;ui.kform={id:null,name:'',kat:k?ui.kochKat:'Hauptspeise',bild:'',video:'',zutaten:'',text:'',zurueck:k?'#kat':'#kochen'};location.hash='#kform'},
- kOeffne(b){const r=K.rezepte.find(x=>x.id===b.dataset.id);ui.kochId=b.dataset.id;ui.kochKat=r?r.kat:null;location.hash='#koch'},
+ kNeu(){const h=location.hash,k=h==='#kat'&&ui.kochKat!=null;ui.kform={id:null,name:'',kat:k?ui.kochKat:h==='#fitness'?'Fitness-Meal':'Hauptspeise',bild:'',video:'',zutaten:'',text:'',zurueck:k?'#kat':h==='#fitness'?'#fitness':'#kochen'};location.hash='#kform'},
+ kpm(b){const r=K.rezepte.find(x=>x.id===ui.kochId);ui.kp=Math.max(1,Math.min(99,(ui.kp||r.portionen)+Number(b.dataset.d)));render()},
+ kOeffne(b){const r=K.rezepte.find(x=>x.id===b.dataset.id);ui.kochId=b.dataset.id;ui.kp=null;ui.kochKat=r?r.kat:null;location.hash='#koch'},
  kEdit(){const r=K.rezepte.find(x=>x.id===ui.kochId);if(r){ui.kform=Object.assign({},r,{zurueck:'#koch'});location.hash='#kform'}},
  async kLink(b){const k=b.dataset.k,n=await fragen('Link einfügen','Instagram-Link für „'+k+'“',{eingabe:'',ok:'Senden'});if(n===null)return;const u=n.trim(),c=code(u);
   if(!c)return toast('Das ist kein Instagram-Link');if(K.rezepte.some(r=>code(r.video)===c))return toast('Dieses Rezept ist schon da');if(K.links.some(x=>code(x.u)===c))return toast('Link ist schon eingetragen');
@@ -521,9 +582,9 @@ const AKT={
  kBild(){$('#kFile').click()},
  kBildWeg(){ui.kform.bild='';$('#kPrev').innerHTML=prevHtml()},
  kSave(){const f=ui.kform,n=$('#kN').value.trim(),v=$('#kV').value.trim();if(!n)return toast('Titel fehlt');if(v&&!/^https?:\/\/\S+$/i.test(v))return toast('Video-Link muss mit https:// beginnen');
-  const r=normK({id:f.id,name:n,kat:f.kat,bild:f.bild,video:v,zutaten:$('#kZ').value,text:$('#kT').value,geaendertAm:Date.now()});
+  const r=normK({id:f.id,name:n,kat:f.kat,bild:f.bild,video:v,zutaten:$('#kZ').value,text:$('#kT').value,portionen:parse($('#kP').value),kcal:parse($('#kC').value),e:parse($('#kE').value),k:parse($('#kK').value),f:parse($('#kF').value),icon:f.icon,geaendertAm:Date.now()});
   K.rezepte=f.id?K.rezepte.map(x=>x.id===r.id?r:x):[...K.rezepte,r];sichernK();ui.kochId=r.id;ui.kochKat=r.kat;ui.kform=null;location.hash='#koch';toast('Rezept gespeichert')},
- async kDel(){const r=K.rezepte.find(x=>x.id===ui.kochId);if(!r||!await fragen('Rezept löschen?','„'+r.name+'“ wird endgültig gelöscht.',{ok:'Löschen'}))return;K.rezepte=K.rezepte.filter(x=>x.id!==r.id);sichernK();ui.kochId=null;location.hash=K.rezepte.some(x=>x.kat===r.kat)?'#kat':'#kochen';toast('Rezept gelöscht')}
+ async kDel(){const r=K.rezepte.find(x=>x.id===ui.kochId);if(!r||!await fragen('Rezept löschen?','„'+r.name+'“ wird endgültig gelöscht.',{ok:'Löschen'}))return;K.rezepte=K.rezepte.filter(x=>x.id!==r.id);sichernK();ui.kochId=null;location.hash=K.rezepte.some(x=>x.kat===r.kat)?'#kat':FKATS.includes(r.kat)?'#fitness':'#kochen';toast('Rezept gelöscht')}
 };
 async function menuAktion(a){const r=S.rezepte.find(x=>x.id===ui.menuId);if(!r||!a)return;
  if(a==='kopie'){const n=await fragen('Kopie erstellen','Name für die Kopie von „'+r.name+'“',{eingabe:r.name+' Kopie',ok:'Erstellen'});if(n===null)return;if(!await verwerfenOk())return;kopieVon(r,n);render();toast('Kopie erstellt')}
