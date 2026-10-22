@@ -25,12 +25,13 @@ Ziel: alle Links, die noch nicht als Rezept in `index.html` stehen, als fertige 
      ffmpeg -loglevel error -y -i v.mp4 -vf "fps=1/3,scale=480:-1" f%02d.jpg
      ```
      Transkript = gesprochene Zutaten und Schritte (Whisper verhört sich, z. B. "Skier" statt "Skyr", Zahlen und Eigennamen prüfen). Frames per `Read` ansehen: Einblendungen mit Mengen, Temperaturen, Zeiten. Beides zu einem Rezept verbinden, nichts dazuerfinden. Im Rezepttext vermerken: "Aus dem Video, keine Beschreibung vorhanden."
-     **Danach Video, Audio und Frames wieder löschen** (`rm -r "$D"`), auch wenn das Rezept fertig ist. Dateien nie im Projektordner ablegen.
+     **Danach Video, Audio und Frames wieder löschen, auch wenn das Rezept fertig ist.** Das Video wird gespeichert, damit nichts verloren geht (Martin, 2026-10-22). Löschen kann ich nicht selbst: `werkzeug-waechter` lehnt `rm` ab, nicht erneut versuchen. Stattdessen am Ende der Meldung den Befehl in einem eigenen `bash`-Block geben, ein Ordner je Video, mit dem vollen Pfad, ohne weiteren Text im Block: `rm -r <scratchpad>/vid-<code>`. Dazu ein Satz: "Löscht nur den Ordner mit dem heruntergeladenen Video dieses Rezepts." Martin führt ihn im Terminal aus, danach mit `ls <scratchpad>` prüfen, ob er weg ist. Dateien nie im Projektordner ablegen.
      Karussell-Posts (`/p/`) haben oft kein Video, dann die Bilder im Browser ansehen. Voraussetzung: `yt-dlp`, `ffmpeg`, `whisper-cli` (Homebrew) und Modell `~/.cache/whisper/ggml-large-v3-turbo.bin`.
    - Gibt auch das Video nichts her: trotzdem anlegen, mit den bekannten Fakten und Hinweis "Mengen fehlen". Nichts erfinden.
 4. **Seeds schreiben.** Siehe Format unten. Backup vorher: `cp index.html "Delete Files/index.html.bak-JJJJMMTT"`.
 5. **Prüfen** (Preview `pizza`, Port 8123): alte Speicherstand-Simulation, siehe unten. Danach `localStorage.removeItem('glut.koch.v1')`.
-6. **Melden:** welche Rezepte neu, in welcher Kategorie, was geschätzt oder lückenhaft ist. Nicht committen, bevor Martin es sagt.
+6. **Committen und pushen, automatisch** (Martin, 2026-10-22: "immer automatisch", gilt nur für diesen Skill): nur wenn Schritt 5 grün war (Rezepte da, keine Konsolenfehler). Nur `index.html` hinzufügen (nie `.claude/launch.json`, `Notizen Essen/`), Commit-Text `Kochen/Fitness: <n> neue Rezepte aus Links (<Kategorien>), Speicher v:<KV>` plus die Co-Authored-By-Zeile, dann `git push origin main`. Schlägt etwas fehl (Test rot, Push abgelehnt), nichts erzwingen, sondern melden. Hosting ist GitHub Pages (live nach 1–2 Minuten).
+7. **Melden:** welche Rezepte neu, in welcher Kategorie, was geschätzt oder lückenhaft ist, Commit-Hash, dass gepusht ist. Der Pages-Lauf wird nicht abgewartet.
 
 ## Format in index.html
 
