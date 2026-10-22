@@ -41,12 +41,10 @@ small{color:var(--mu);font-size:13px}
 .dot{position:absolute;top:8px;right:8px;width:10px;height:10px;border-radius:50%;background:var(--pr);border:2px solid var(--bg)}
 .dot[hidden]{display:none}
 svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.gruss{display:flex;align-items:center;gap:8px;margin:14px 0 0;font:600 13px var(--bd);letter-spacing:.08em;text-transform:uppercase;color:var(--mu)}
-.gruss i{width:8px;height:8px;border-radius:50%;background:var(--pr)}
 .lead{color:var(--mu);margin:0 0 26px}
 .sec{font:800 20px var(--hd);margin:0 0 14px}
 .link{color:var(--pt);font-weight:600}
-.kat{display:block;position:relative;height:160px;border-radius:22px;overflow:hidden;margin-bottom:12px;color:#fff;isolation:isolate;border:1px solid var(--ln)}
+.kat{display:block;position:relative;height:clamp(96px,calc((100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 177px)/4),160px);border-radius:22px;overflow:hidden;margin-bottom:12px;color:#fff;isolation:isolate;border:1px solid var(--ln)}
 .kat::before{content:"";position:absolute;inset:0;background:var(--bild) center/cover;z-index:-2}
 .kat::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.05) 25%,rgba(12,8,6,.86));z-index:-1}
 .kat.off::before{filter:grayscale(.6) brightness(.6)}
@@ -324,9 +322,9 @@ const verwerfenOk=async()=>!geaendert()||fragen('Änderungen verwerfen?','Die Ä
 const kopf=()=>'<header class="top"><div class="logo">'+ic('flame')+'<span>GLUT</span></div><span style="display:flex;gap:8px">'+(['kochen','fitness'].includes(ansicht())?'<a class="icbtn" href="#start" aria-label="Zur Startseite">'+ic('slice')+'</a>':'')+'<button class="icbtn" data-act="theme" aria-label="'+(S.theme==='dark'?'Zum hellen Design wechseln':'Zum dunklen Design wechseln')+'">'+ic(S.theme==='dark'?'moon':'sun')+'</button></span></header>';
 const hydr=r=>'<span class="pill">'+nfm(1).format(r.hydration)+' % Hydration</span>';
 
-function vStart(){const h=new Date().getHours();const gruss=h<5?'Gute Nacht':h<11?'Guten Morgen':h<18?'Guten Tag':'Guten Abend';
+function vStart(){
  const sperre=(n,t,bild)=>'<div class="kat off" style="--bild:url(img/'+bild+'.jpg)"><span class="tag">'+ic('lock')+'Bald</span><b>'+n+'</b><small>'+t+'</small></div>';
- return kopf()+'<p class="gruss"><i></i>'+gruss+'</p><h1 class="hl">Teig, Glut &amp; <em>Genuss</em></h1>'
+ return kopf()+'<h1 class="hl">Teig, Glut &amp; <em>Genuss</em></h1>'
  +'<a class="kat on" href="#rechner" style="--bild:url(img/pizza.jpg)"><span class="tag" aria-hidden="true">'+ic('arrow')+'</span><b>Pizza</b><small>Teig, Gare, perfekter Rand</small></a>'
  +sperre('Grillen','Glut, Marinaden, Temperaturen','grillen')+'<a class="kat on" href="#kochen" style="--bild:url(img/kochen.jpg)"><span class="tag" aria-hidden="true">'+ic('arrow')+'</span><b>Kochen</b><small>Alltag und Lieblingsgerichte</small></a>'
  +'<a class="kat on" href="#fitness" style="--bild:url(img/fitness.jpg)"><span class="tag" aria-hidden="true">'+ic('arrow')+'</span><b>Fitness</b><small>Protein, Meal Prep, leichte Rezepte</small></a>'}
