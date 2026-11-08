@@ -543,7 +543,7 @@ function ladenK(){let d=null;try{d=JSON.parse(localStorage.getItem(KKEY))}catch(
  const rez=l.map(normK);return{v:KV,rezepte:rez,kats:katsAus(Array.isArray(d.kats)?d.kats.filter(k=>k!=='Snack'):d.kats,rez),links:(Array.isArray(d.links)?d.links:[]).filter(x=>x&&FORM.e[x.k]&&code(x.u)&&!rez.some(r=>code(r.video)===code(x.u))).map(x=>({k:x.k,u:String(x.u).slice(0,500)}))}}
 function sichernK(){try{localStorage.setItem(KKEY,JSON.stringify(K))}catch(e){toast('Speichern fehlgeschlagen – Speicher voll? Kleineres Bild oder Rezepte löschen')}}
 const alleKats=()=>[...KATS,...GKATS,...K.kats];
-const katOpts=()=>alleKats().map(k=>'<option'+(k===ui.kform.kat?' selected':'')+'>'+esc(k)+'</option>').join('')+'<option value="">+ Neue Kategorie …</option>';
+const katOpts=()=>[['Kochen','#kochen'],['Fitness','#fitness'],['Grillen','#grillen']].map(([n,z])=>'<optgroup label="'+n+'">'+alleKats().filter(k=>bereichVon(k)===z).map(k=>'<option'+(k===ui.kform.kat?' selected':'')+'>'+esc(k)+'</option>').join('')+'</optgroup>').join('')+'<option value="">+ Neue Kategorie …</option>';
 const prevHtml=()=>ui.kform.bild?'<img src="'+esc(ui.kform.bild)+'" alt="Vorschau">':'<i class="ph">'+ic('cook')+'</i>';
 function verkleinern(file){return new Promise((ok,nein)=>{const u=URL.createObjectURL(file),im=new Image();im.onload=()=>{const s=Math.min(1,800/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);ok(c.toDataURL('image/jpeg',.75))};im.onerror=()=>{URL.revokeObjectURL(u);nein()};im.src=u})}
 
