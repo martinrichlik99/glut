@@ -168,6 +168,7 @@ dialog input[hidden]{display:none}
 .wart{opacity:.7}.wart small{color:var(--mu);font-size:13px}
 .kcat svg.i,.kzl svg.i{flex:none;color:var(--mu);transform:rotate(-90deg)}
 .kzl i svg.i{width:16px;height:16px;color:var(--pt);transform:none}
+.wart button{min-width:44px;min-height:44px;background:none;border:0;color:var(--mu);font-size:18px}
 .hero{border-radius:22px;overflow:hidden;margin:4px 0 12px;aspect-ratio:16/9;background:var(--s1);border:1px solid var(--ln)}
 .hero img{width:100%;height:100%;object-fit:cover;display:block}
 .hero .ph{width:100%;height:100%}
@@ -566,7 +567,7 @@ const zutatenAnz=r=>r.zutaten.split('\n').filter(x=>x.trim()&&!x.trim().endsWith
 const thumb=r=>'<span class="ke" aria-hidden="true">'+(r.bild?'<img src="'+esc(r.bild)+'" alt="">':ikon(r))+'</span>';
 function vKat(){const k=ui.kochKat;if(k==null)return vKochen();const l=K.rezepte.filter(r=>r.kat===k).sort((x,y)=>x.name.localeCompare(y.name,'de')),zur=bereichVon(k);
  return '<header class="top rtop"><a class="icbtn" href="'+zur+'" aria-label="Zurück zu den Kategorien">'+ic('back')+'</a><h1>'+esc(k)+'</h1><button class="icbtn" data-act="kNeu" aria-label="Neues Rezept in '+esc(k)+'">'+ic('plus')+'</button></header>'
- +(FORM.e[k]?'<button class="kzl lnk" data-act="kLink" data-k="'+esc(k)+'"><b>＋ Link einfügen</b></button>'+K.links.filter(x=>x.k===k).map(x=>'<div class="kzl wart"><b>'+esc(code(x.u))+'</b><small>wartet auf Import</small></div>').join(''):'')
+ +(FORM.e[k]?'<button class="kzl lnk" data-act="kLink" data-k="'+esc(k)+'"><b>＋ Link einfügen</b></button>'+K.links.filter(x=>x.k===k).map(x=>'<div class="kzl wart"><b>'+esc(code(x.u))+'</b><small>wartet auf Import</small><button data-act="kLinkWeg" data-u="'+esc(x.u)+'" aria-label="Link entfernen">✕</button></div>').join(''):'')
  +(l.length?l.map(r=>'<button class="rc" data-act="kOeffne" data-id="'+esc(r.id)+'">'+thumb(r)+'<span class="rt"><b>'+esc(r.name)+'</b><small>'+(r.kcal?'🔥 '+nfm(0).format(r.kcal)+' kcal'+(r.portionen>1?' pro Portion':'')+' · ':'')+zutatenAnz(r)+' Zutaten</small></span>'+(r.bew?'<span class="bw" role="img" aria-label="'+BEW[r.bew][1]+'">'+BEW[r.bew][0]+'</span>':'')+(r.video?'<i aria-label="mit Video">'+ic('play')+'</i>':'')+ic('chev')+'</button>').join(''):'<p class="schr-leer">Noch keine Rezepte in dieser Kategorie.</p>')}
 const bewHtml=r=>'<div class="bew" role="group" aria-label="Meine Bewertung">'+Object.entries(BEW).map(([k,[e,t]])=>'<button data-act="kBew" data-b="'+k+'" aria-pressed="'+(r.bew===k)+'"><span aria-hidden="true">'+e+'</span>'+t+'</button>').join('')+'</div>';
 const nwHtml=r=>{if(!r.kcal)return '';const g=n=>nfm(0).format(n);
@@ -636,6 +637,7 @@ const AKT={
   if(!c)return toast('Das ist kein Instagram-Link');if(K.rezepte.some(r=>code(r.video)===c))return toast('Dieses Rezept ist schon da');if(K.links.some(x=>code(x.u)===c))return toast('Link ist schon eingetragen');
   try{await fetch(FORM.url,{method:'POST',mode:'no-cors',body:new URLSearchParams({[FORM.e[k]]:u})})}catch(e){return toast('Senden fehlgeschlagen – Internet? Bitte nochmal')}
   K.links.push({k,u:u.slice(0,500)});sichernK();render();toast('Link gesendet')},
+ kLinkWeg(b){K.links=K.links.filter(x=>x.u!==b.dataset.u);sichernK();render();toast('Link entfernt')},
  kBew(b){const r=K.rezepte.find(x=>x.id===ui.kochId);r.bew=r.bew===b.dataset.b?'':b.dataset.b;sichernK();render()},
  kBild(){$('#kFile').click()},
  kBildWeg(){ui.kform.bild='';$('#kPrev').innerHTML=prevHtml()},
